@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 type UserSSHClient struct {

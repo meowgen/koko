@@ -9,14 +9,14 @@ import (
 
 	"github.com/gliderlabs/ssh"
 
-	"github.com/jumpserver/koko/pkg/common"
-	"github.com/jumpserver/koko/pkg/i18n"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/service"
-	"github.com/jumpserver/koko/pkg/logger"
-	"github.com/jumpserver/koko/pkg/proxy"
-	"github.com/jumpserver/koko/pkg/srvconn"
-	"github.com/jumpserver/koko/pkg/utils"
+	"github.com/meowgen/koko/pkg/common"
+	"github.com/meowgen/koko/pkg/i18n"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
+	"github.com/meowgen/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/proxy"
+	"github.com/meowgen/koko/pkg/srvconn"
+	"github.com/meowgen/koko/pkg/utils"
 )
 
 /*
@@ -27,7 +27,7 @@ import (
 3. JMS_username@systemUser_uuid@asset_uuid
 4. JMS_username#systemUser_uuid#asset_uuid
 
-JMS_username: 			JumpServer 平台上的用户名
+JMS_username: 			meowgen 平台上的用户名
 systemUser_username：	对应系统用户的用户名
 asset_ip: 				对应资产的ip
 systemUser_uuid:		对应系统用户的UUID

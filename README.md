@@ -1,7 +1,7 @@
 
 # KoKo
 
-Koko 是 JumpServer 连接字符协议的终端组件，支持 SSH、TELNET、MySQL、Redis 等协议。
+Koko 是 meowgen 连接字符协议的终端组件，支持 SSH、TELNET、MySQL、Redis 等协议。
 
 Koko 使用 Golang 和 Vue 来实现，名字来自 Dota 英雄 [Kunkka](https://www.dota2.com.cn/hero/kunkka)。
 
@@ -19,7 +19,7 @@ Koko 使用 Golang 和 Vue 来实现，名字来自 Dota 英雄 [Kunkka](https:/
 1.下载项目
 
 ```shell
-git clone https://github.com/jumpserver/koko.git
+git clone https://github.com/meowgen/koko.git
 ```
 
 2.编译应用
@@ -46,7 +46,7 @@ koko-[branch name]-[commit]-linux-amd64.tar.gz
 tar xzvf koko-[branch name]-[commit]-linux-amd64.tar.gz
 ```
 
-3.创建配置文件config.yml，配置参数请参考[config_example.yml](https://github.com/jumpserver/koko/blob/master/config_example.yml)文件
+3.创建配置文件config.yml，配置参数请参考[config_example.yml](https://github.com/meowgen/koko/blob/master/config_example.yml)文件
 ```shell
 touch config.yml
 ```

@@ -25,7 +25,7 @@ type PublicSetting struct {
 	"SECURITY_PASSWORD_EXPIRATION_TIME": 10000,
 	"SECURITY_LUNA_REMEMBER_AUTH": true,
 	"XPACK_LICENSE_IS_VALID": true,
-	"LOGIN_TITLE": "欢迎使用JumpServer开源堡垒机",
+	"LOGIN_TITLE": "欢迎使用meowgen开源堡垒机",
 	"LOGO_URLS": {
 		"logo_logout": "/static/img/logo.png",
 		"logo_index": "/static/img/logo_text.png",

@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jumpserver/koko/pkg/config"
-	"github.com/jumpserver/koko/pkg/localcommand"
-	"github.com/jumpserver/koko/pkg/logger"
-	"github.com/jumpserver/koko/pkg/utils"
+	"github.com/meowgen/koko/pkg/config"
+	"github.com/meowgen/koko/pkg/localcommand"
+	"github.com/meowgen/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/utils"
 )
 
 var (

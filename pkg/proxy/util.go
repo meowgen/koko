@@ -3,9 +3,9 @@ package proxy
 import (
 	"strings"
 
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/service"
-	storage "github.com/jumpserver/koko/pkg/proxy/recorderstorage"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
+	storage "github.com/meowgen/koko/pkg/proxy/recorderstorage"
 )
 
 type StorageType interface {
@@ -131,7 +131,7 @@ func NewCommandStorage(jmsService *service.JMService, conf *model.TerminalConfig
 		{
 		'DOC_TYPE': 'command',
 		  'HOSTS': ['http://172.16.10.122:9200'],
-		  'INDEX': 'jumpserver',
+		  'INDEX': 'meowgen',
 		  'OTHER': {'IGNORE_VERIFY_CERTS': True},
 		  'TYPE': 'es'
 		}

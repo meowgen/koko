@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/jumpserver/koko/pkg/localcommand"
+	"github.com/meowgen/koko/pkg/localcommand"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 )
 
 func (s *JMService) GetAllUserPermK8s(userId string) ([]map[string]interface{}, error) {

@@ -5,8 +5,8 @@ import (
 )
 
 func TestDecrypt(t *testing.T) {
-	var cipherKey = "JumpServer Cipher Key for KoKo !"
-	text := "JumpServer Token Value"
+	var cipherKey = "jumpserver Cipher Key for KoKo !"
+	text := "jumpserver Token Value"
 	t.Log("Encrypt Text: ", text)
 	dst, err := Encrypt(text, cipherKey)
 	if err != nil {

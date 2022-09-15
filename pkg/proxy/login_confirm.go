@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jumpserver/koko/pkg/auth"
-	"github.com/jumpserver/koko/pkg/logger"
-	"github.com/jumpserver/koko/pkg/utils"
+	"github.com/meowgen/koko/pkg/auth"
+	"github.com/meowgen/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/utils"
 )
 
 // 校验用户登录资产是否需要复核

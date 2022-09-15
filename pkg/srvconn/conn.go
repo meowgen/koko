@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jumpserver/koko/pkg/common"
-	"github.com/jumpserver/koko/pkg/localcommand"
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/common"
+	"github.com/meowgen/koko/pkg/localcommand"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 type ServerConnection interface {

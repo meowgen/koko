@@ -25,9 +25,9 @@ mkdir -p .kube
 
 export HOME=/nonexistent
 
-echo `rawkubectl config set-credentials JumpServer-user` > /dev/null 2>&1
+echo `rawkubectl config set-credentials jumpserver-user` > /dev/null 2>&1
 echo `rawkubectl config set-cluster kubernetes --server=${KUBECTL_CLUSTER}` > /dev/null 2>&1
-echo `rawkubectl config set-context kubernetes --cluster=kubernetes --user=JumpServer-user` > /dev/null 2>&1
+echo `rawkubectl config set-context kubernetes --cluster=kubernetes --user=jumpserver-user` > /dev/null 2>&1
 echo `rawkubectl config use-context kubernetes` > /dev/null 2>&1
 
 if [ ${KUBECTL_INSECURE_SKIP_TLS_VERIFY} == "true" ];then

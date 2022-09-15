@@ -113,8 +113,8 @@ msgstr "%sノードに資産がありません"
 
 #. lang.T
 #: pkg/handler/banner.go:29
-msgid "Welcome to use JumpServer open source fortress system"
-msgstr "JumpServerオープンソース要塞システムを使用することを歓迎します"
+msgid "Welcome to use meowgen open source fortress system"
+msgstr "meowgenオープンソース要塞システムを使用することを歓迎します"
 
 #. lang.T
 #: pkg/handler/banner.go:31

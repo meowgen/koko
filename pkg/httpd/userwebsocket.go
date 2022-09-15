@@ -8,9 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	gorilla "github.com/gorilla/websocket"
 
-	"github.com/jumpserver/koko/pkg/httpd/ws"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/httpd/ws"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 type Handler interface {

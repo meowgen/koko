@@ -9,9 +9,9 @@ import (
 
 	"github.com/pkg/sftp"
 
-	"github.com/jumpserver/koko/pkg/config"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/service"
+	"github.com/meowgen/koko/pkg/config"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
 )
 
 const (

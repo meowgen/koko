@@ -49,7 +49,7 @@ export function canvasWaterMark({
   alpha = 0.3,
   font = '20px monaco, microsoft yahei',
   fillStyle = 'rgba(184, 184, 184, 0.8)',
-  content = 'JumpServer',
+  content = 'jumpserver',
   rotate = -45,
   zIndex = 1000
 }) {

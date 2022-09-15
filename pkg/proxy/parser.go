@@ -10,13 +10,13 @@ import (
 
 	"github.com/LeeEirc/tclientlib"
 
-	"github.com/jumpserver/koko/pkg/exchange"
-	"github.com/jumpserver/koko/pkg/i18n"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/service"
-	"github.com/jumpserver/koko/pkg/logger"
-	"github.com/jumpserver/koko/pkg/utils"
-	"github.com/jumpserver/koko/pkg/zmodem"
+	"github.com/meowgen/koko/pkg/exchange"
+	"github.com/meowgen/koko/pkg/i18n"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
+	"github.com/meowgen/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/utils"
+	"github.com/meowgen/koko/pkg/zmodem"
 )
 
 var (

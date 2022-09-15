@@ -7,7 +7,7 @@ import (
 
 	"github.com/LeeEirc/terminalparser"
 
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 func NewCmdParser(sid, name string) *CmdParser {

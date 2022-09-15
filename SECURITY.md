@@ -2,4 +2,4 @@
 
 ## Reporting a Vulnerability
 
-See [https://github.com/jumpserver](https://github.com/jumpserver/jumpserver/blob/master/SECURITY.md) for how to report a vulnerability.
+See [https://github.com/meowgen](https://github.com/meowgen/meowgen/blob/master/SECURITY.md) for how to report a vulnerability.

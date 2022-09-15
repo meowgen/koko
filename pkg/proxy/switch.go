@@ -9,13 +9,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/jumpserver/koko/pkg/exchange"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/common"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/logger"
-	"github.com/jumpserver/koko/pkg/srvconn"
-	"github.com/jumpserver/koko/pkg/utils"
-	"github.com/jumpserver/koko/pkg/zmodem"
+	"github.com/meowgen/koko/pkg/exchange"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/common"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/srvconn"
+	"github.com/meowgen/koko/pkg/utils"
+	"github.com/meowgen/koko/pkg/zmodem"
 )
 
 type SwitchSession struct {

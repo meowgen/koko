@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 )
 
 func (s *JMService) SubmitCommandConfirm(sid string, ruleId string, cmd string) (res model.CommandTicketInfo, err error) {

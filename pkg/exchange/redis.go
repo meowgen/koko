@@ -10,15 +10,15 @@ import (
 	"github.com/mediocregopher/radix/v3"
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 const (
-	globalRoomsKey = "JUMPSERVER:KOKO:ROOMS"
+	globalRoomsKey = "jumpserver:KOKO:ROOMS"
 
-	eventsChannel = "JUMPSERVER:KOKO:EVENTS:CHANNEL"
+	eventsChannel = "jumpserver:KOKO:EVENTS:CHANNEL"
 
-	resultsChannel = "JUMPSERVER:KOKO:EVENTS:RESULT"
+	resultsChannel = "jumpserver:KOKO:EVENTS:RESULT"
 
 	sessionsChannelPrefix = "JMS:KOKO:SESSIONS:"
 )

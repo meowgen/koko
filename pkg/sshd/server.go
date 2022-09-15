@@ -5,12 +5,13 @@ import (
 	"net"
 	"strconv"
 	"time"
+	"fmt"
 
 	"github.com/gliderlabs/ssh"
 	"github.com/pires/go-proxyproto"
 	gossh "golang.org/x/crypto/ssh"
 
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 const (
@@ -67,12 +68,19 @@ func NewSSHServer(handler SSHHandler) *Server {
 		},
 		Addr: handler.GetSSHAddr(),
 		KeyboardInteractiveHandler: func(ctx ssh.Context, challenger gossh.KeyboardInteractiveChallenge) ssh.AuthResult {
+			logger.Infof("keyboard interactive handler~~~~~~~~~~~")
 			return ssh.AuthResult(handler.KeyboardInteractiveAuth(ctx, challenger))
 		},
 		PasswordHandler: func(ctx ssh.Context, password string) ssh.AuthResult {
+			logger.Infof("password handler~~~~~~~~~~~")
+			logger.Infof(ctx.User())
+			logger.Infof(fmt.Sprintf("%v", ctx.RemoteAddr()))
+			logger.Infof(fmt.Sprintf("%v", ctx.LocalAddr()))
+
 			return ssh.AuthResult(handler.PasswordAuth(ctx, password))
 		},
 		PublicKeyHandler: func(ctx ssh.Context, key ssh.PublicKey) ssh.AuthResult {
+			logger.Infof("public key handler~~~~~~~~~~~")
 			return ssh.AuthResult(handler.PublicKeyAuth(ctx, key))
 		},
 		NextAuthMethodsHandler: func(ctx ssh.Context) []string {

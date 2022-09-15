@@ -11,7 +11,7 @@ import (
 	"github.com/LeeEirc/tclientlib"
 	"golang.org/x/text/transform"
 
-	"github.com/jumpserver/koko/pkg/common"
+	"github.com/meowgen/koko/pkg/common"
 )
 
 func NewTelnetConnection(opts ...TelnetOption) (*TelnetConnection, error) {

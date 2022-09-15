@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jumpserver/koko/pkg/utils"
+	"github.com/meowgen/koko/pkg/utils"
 )
 
 const (

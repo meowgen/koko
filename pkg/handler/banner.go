@@ -5,10 +5,10 @@ import (
 	"io"
 	"text/template"
 
-	"github.com/jumpserver/koko/pkg/i18n"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/logger"
-	"github.com/jumpserver/koko/pkg/utils"
+	"github.com/meowgen/koko/pkg/i18n"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/utils"
 )
 
 type MenuItem struct {
@@ -26,7 +26,7 @@ type ColorMeta struct {
 
 func (h *InteractiveHandler) displayBanner(sess io.ReadWriter, user string, termConf *model.TerminalConfig) {
 	lang := i18n.NewLang(h.i18nLang)
-	defaultTitle := utils.WrapperTitle(lang.T("Welcome to use JumpServer open source fortress system"))
+	defaultTitle := utils.WrapperTitle(lang.T("Welcome to use meowgen open source fortress system"))
 	menu := Menu{
 		{id: 1, instruct: lang.T("part IP, Hostname, Comment"), helpText: lang.T("to search login if unique")},
 		{id: 2, instruct: lang.T("/ + IP, Hostname, Comment"), helpText: lang.T("to search, such as: /192.168")},

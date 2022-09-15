@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 )
 
 func (s *JMService) CheckUserCookie(cookies map[string]string) (user *model.User, err error) {

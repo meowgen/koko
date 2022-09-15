@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jumpserver/koko/pkg/common"
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/common"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 type RoomManager interface {

@@ -14,7 +14,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
 
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 var (

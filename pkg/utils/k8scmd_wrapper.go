@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"os/signal"
 
-	"github.com/jumpserver/koko/pkg/config"
+	"github.com/meowgen/koko/pkg/config"
 )
 
 const (

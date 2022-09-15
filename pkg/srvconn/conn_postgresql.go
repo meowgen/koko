@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/jumpserver/koko/pkg/localcommand"
+	"github.com/meowgen/koko/pkg/localcommand"
 )
 
 const (

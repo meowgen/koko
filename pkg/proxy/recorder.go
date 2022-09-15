@@ -7,14 +7,14 @@ import (
 	"sync"
 	"time"
 
-	storage "github.com/jumpserver/koko/pkg/proxy/recorderstorage"
+	storage "github.com/meowgen/koko/pkg/proxy/recorderstorage"
 
-	"github.com/jumpserver/koko/pkg/asciinema"
-	"github.com/jumpserver/koko/pkg/common"
-	"github.com/jumpserver/koko/pkg/config"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/service"
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/asciinema"
+	"github.com/meowgen/koko/pkg/common"
+	"github.com/meowgen/koko/pkg/config"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 type CommandRecorder struct {

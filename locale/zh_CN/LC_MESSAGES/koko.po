@@ -121,8 +121,8 @@ msgstr "%s节点没有资产"
 #. lang.T
 #: pkg/handler/banner.go:29
 #, fuzzy
-msgid "Welcome to use JumpServer open source fortress system"
-msgstr "欢迎使用JumpServer开源堡垒机系统"
+msgid "Welcome to use meowgen open source fortress system"
+msgstr "欢迎使用meowgen开源堡垒机系统"
 
 #. lang.T
 #: pkg/handler/banner.go:31

@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 )
 
 func (s *JMService) CreateShareRoom(sessionId string, expired int, users []string) (res model.SharingSession, err error) {

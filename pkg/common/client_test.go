@@ -23,7 +23,7 @@ type User struct {
 }
 
 var users = []User{{ID: 1, Name: "Guanghongwei", Age: 18}, {ID: 2, Name: "ibuler", Age: 19}}
-var user = User{ID: 2, Name: "Jumpserver", Age: 5}
+var user = User{ID: 2, Name: "jumpserver", Age: 5}
 var userDeleteUrl = fmt.Sprintf("%s/%d", usersUrl, user.ID)
 
 func TestClient_Do(t *testing.T) {

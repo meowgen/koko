@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 )
 
 func (s *JMService) SearchPermAsset(userId, key string) (res model.AssetList, err error) {

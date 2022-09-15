@@ -113,7 +113,7 @@ msgstr ""
 
 #. lang.T
 #: pkg/handler/banner.go:29
-msgid "Welcome to use JumpServer open source fortress system"
+msgid "Welcome to use meowgen open source fortress system"
 msgstr ""
 
 #. lang.T

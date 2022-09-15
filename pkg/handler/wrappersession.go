@@ -8,9 +8,9 @@ import (
 
 	"github.com/gliderlabs/ssh"
 
-	"github.com/jumpserver/koko/pkg/common"
-	"github.com/jumpserver/koko/pkg/exchange"
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/common"
+	"github.com/meowgen/koko/pkg/exchange"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 type WrapperSession struct {

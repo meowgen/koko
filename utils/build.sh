@@ -27,8 +27,8 @@ if [[ -n "${VERSION-}" ]]; then
   kokoVersion="${VERSION}"
 fi
 
-goldflags="-X 'main.Buildstamp=$buildStamp' -X 'main.Githash=$gitHash' -X 'main.Goversion=$goVersion' -X 'github.com/jumpserver/koko/pkg/koko.Version=$kokoVersion' -X 'github.com/jumpserver/koko/pkg/config.CipherKey=$cipherKey'"
-k8scmdflags="-X 'github.com/jumpserver/koko/pkg/config.CipherKey=$cipherKey'"
+goldflags="-X 'main.Buildstamp=$buildStamp' -X 'main.Githash=$gitHash' -X 'main.Goversion=$goVersion' -X 'github.com/meowgen/koko/pkg/koko.Version=$kokoVersion' -X 'github.com/meowgen/koko/pkg/config.CipherKey=$cipherKey'"
+k8scmdflags="-X 'github.com/meowgen/koko/pkg/config.CipherKey=$cipherKey'"
 # 下载依赖模块并构建
 cd .. && go mod download || exit 3
 CGO_ENABLED=0 GOOS="$OS" go build -ldflags "$goldflags" -o koko ${project_dir}/cmd/koko/ || exit 4

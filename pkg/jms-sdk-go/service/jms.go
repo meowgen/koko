@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/httplib"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/httplib"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 )
 
 var AccessKeyUnauthorized = errors.New("access key unauthorized")

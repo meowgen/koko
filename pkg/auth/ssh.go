@@ -3,15 +3,16 @@ package auth
 import (
 	"net"
 	"strings"
+	"fmt"
 
 	"github.com/gliderlabs/ssh"
 	gossh "golang.org/x/crypto/ssh"
 
-	"github.com/jumpserver/koko/pkg/common"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/service"
-	"github.com/jumpserver/koko/pkg/logger"
-	"github.com/jumpserver/koko/pkg/sshd"
+	"github.com/meowgen/koko/pkg/common"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
+	"github.com/meowgen/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/sshd"
 )
 
 type SSHAuthFunc func(ctx ssh.Context, password, publicKey string) (res sshd.AuthStatus)
@@ -211,6 +212,7 @@ func parseDirectLoginReq(jmsService *service.JMService, ctx ssh.Context) (*Direc
 func parseJMSTokenLoginReq(jmsService *service.JMService, ctx ssh.Context) (*DirectLoginAssetReq, bool) {
 	if strings.HasPrefix(ctx.User(), tokenPrefix) {
 		token := strings.TrimPrefix(ctx.User(), tokenPrefix)
+		logger.Infof(token)
 		if resp, err := jmsService.GetConnectTokenAuth(token); err == nil {
 			req := DirectLoginAssetReq{Info: &resp.Info}
 			return &req, true

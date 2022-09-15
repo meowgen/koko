@@ -17,8 +17,8 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/jumpserver/koko/pkg/localcommand"
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/localcommand"
+	"github.com/meowgen/koko/pkg/logger"
 )
 
 const (

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/jumpserver/koko/pkg/localcommand"
+	"github.com/meowgen/koko/pkg/localcommand"
 	"github.com/mediocregopher/radix/v3"
 )
 

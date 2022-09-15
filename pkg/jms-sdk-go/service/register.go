@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/httplib"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/httplib"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 )
 
 const ComponentName = "koko"

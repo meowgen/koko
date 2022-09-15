@@ -8,15 +8,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jumpserver/koko/pkg/config"
-	"github.com/jumpserver/koko/pkg/exchange"
-	"github.com/jumpserver/koko/pkg/httpd"
-	"github.com/jumpserver/koko/pkg/i18n"
-	"github.com/jumpserver/koko/pkg/logger"
-	"github.com/jumpserver/koko/pkg/sshd"
+	"github.com/meowgen/koko/pkg/config"
+	"github.com/meowgen/koko/pkg/exchange"
+	"github.com/meowgen/koko/pkg/httpd"
+	"github.com/meowgen/koko/pkg/i18n"
+	"github.com/meowgen/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/sshd"
 
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/service"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
 )
 
 var Version = "unknown"
@@ -29,7 +29,7 @@ type Koko struct {
 const (
 	timeFormat      = "2006-01-02 15:04:05"
 	startWelcomeMsg = `%s
-KoKo Version %s, more see https://www.jumpserver.org
+KoKo Version %s, more see https://www.meowgen.org
 Quit the server with CONTROL-C.
 `
 )

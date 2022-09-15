@@ -1,7 +1,7 @@
 package httpd
 
 import (
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/service"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
 	"strings"
 )
 

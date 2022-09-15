@@ -24,19 +24,15 @@ LDFLAGS=-w -s
 KOKOLDFLAGS+=-X 'main.Buildstamp=$(BuildTime)'
 KOKOLDFLAGS+=-X 'main.Githash=$(COMMIT)'
 KOKOLDFLAGS+=-X 'main.Goversion=$(GOVERSION)'
-KOKOLDFLAGS+=-X 'github.com/jumpserver/koko/pkg/koko.Version=$(VERSION)'
-KOKOLDFLAGS+=-X 'github.com/jumpserver/koko/pkg/config.CipherKey=$(CipherKey)'
+KOKOLDFLAGS+=-X 'github.com/meowgen/koko/pkg/koko.Version=$(VERSION)'
+KOKOLDFLAGS+=-X 'github.com/meowgen/koko/pkg/config.CipherKey=$(CipherKey)'
 
-K8SCMDFLAGS=-X 'github.com/jumpserver/koko/pkg/config.CipherKey=$(CipherKey)'
+K8SCMDFLAGS=-X 'github.com/meowgen/koko/pkg/config.CipherKey=$(CipherKey)'
 
 KOKOBUILD=CGO_ENABLED=0 go build -trimpath -ldflags "$(KOKOLDFLAGS) ${LDFLAGS}"
 K8SCMDBUILD=CGO_ENABLED=0 go build -trimpath -ldflags "$(K8SCMDFLAGS) ${LDFLAGS}"
 
-PLATFORM_LIST = \
-	darwin-amd64 \
-	darwin-arm64 \
-	linux-amd64 \
-	linux-arm64
+PLATFORM_LIST = linux-amd64
 
 all-arch: $(PLATFORM_LIST)
 
@@ -84,7 +80,7 @@ darwin-arm64:koko-ui
 	cd $(BUILDDIR) && tar -czvf $(NAME)-$(VERSION)-$@.tar.gz $(NAME)-$(VERSION)-$@
 	rm -rf $(BUILDDIR)/$(NAME)-$(VERSION)-$@ $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
 
-linux-amd64:koko-ui
+linux-amd64:
 	GOARCH=amd64 GOOS=linux $(KOKOBUILD) -o $(BUILDDIR)/$(NAME)-$@ $(KOKOSRCFILE)
 	GOARCH=amd64 GOOS=linux $(K8SCMDBUILD) -o $(BUILDDIR)/kubectl-$@ $(KUBECTLFILE)
 	GOARCH=amd64 GOOS=linux $(K8SCMDBUILD) -o $(BUILDDIR)/helm-$@ $(HELMFILE)
@@ -150,14 +146,14 @@ linux-loong64:koko-ui
 	cd $(BUILDDIR) && tar -czvf $(NAME)-$(VERSION)-$@.tar.gz $(NAME)-$(VERSION)-$@
 	rm -rf $(BUILDDIR)/$(NAME)-$(VERSION)-$@ $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
 
-koko-ui:
-	@echo "build ui"
-	@cd $(UIDIR) && $(NPMINSTALL) && $(NPMBUILD)
+# koko-ui:
+# 	@echo "build ui"
+# 	@cd $(UIDIR) && $(NPMINSTALL) && $(NPMBUILD)
 
 .PHONY: docker
 docker:
 	@echo "build docker images"
-	docker build --build-arg VERSION=$(VERSION) --build-arg TARGETARCH=$(TARGETARCH) -t jumpserver/koko .
+	docker build --build-arg VERSION=$(VERSION) --build-arg TARGETARCH=$(TARGETARCH) -t meowgen/koko .
 
 .PHONY: clean
 clean:

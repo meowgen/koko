@@ -3,7 +3,7 @@ package service
 import (
 	"time"
 
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/httplib"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/httplib"
 )
 
 type option struct {

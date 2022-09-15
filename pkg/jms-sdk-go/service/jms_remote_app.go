@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 )
 
 func (s *JMService) GetRemoteApp(remoteAppId string) (remoteApp model.RemoteAPP, err error) {

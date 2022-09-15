@@ -3,9 +3,9 @@ package proxy
 import (
 	"fmt"
 
-	"github.com/jumpserver/koko/pkg/i18n"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/srvconn"
+	"github.com/meowgen/koko/pkg/i18n"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/srvconn"
 )
 
 type ConnectionOption func(options *ConnectionOptions)

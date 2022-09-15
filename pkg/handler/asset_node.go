@@ -2,11 +2,11 @@ package handler
 
 import (
 	"fmt"
-	"github.com/jumpserver/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/logger"
 
-	"github.com/jumpserver/koko/pkg/i18n"
-	"github.com/jumpserver/koko/pkg/jms-sdk-go/model"
-	"github.com/jumpserver/koko/pkg/utils"
+	"github.com/meowgen/koko/pkg/i18n"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+	"github.com/meowgen/koko/pkg/utils"
 )
 
 func (u *UserSelectHandler) retrieveRemoteNodeAsset(reqParam model.PaginationParam) []map[string]interface{} {
