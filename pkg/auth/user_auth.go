@@ -14,6 +14,8 @@ import (
 	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
 	"github.com/meowgen/koko/pkg/logger"
+
+	//"github.com/davecgh/go-spew/spew"
 )
 
 type authOptions struct {

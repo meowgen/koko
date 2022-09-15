@@ -1,4 +1,4 @@
-NAME=koko
+NAME=meowgenkoko
 BUILDDIR=build
 
 BASEPATH := $(shell pwd)
@@ -40,111 +40,111 @@ darwin-amd64:koko-ui
 	GOARCH=amd64 GOOS=darwin $(KOKOBUILD) -o $(BUILDDIR)/$(NAME)-$@ $(KOKOSRCFILE)
 	GOARCH=amd64 GOOS=darwin $(K8SCMDBUILD) -o $(BUILDDIR)/kubectl-$@ $(KUBECTLFILE)
 	GOARCH=amd64 GOOS=darwin $(K8SCMDBUILD) -o $(BUILDDIR)/helm-$@ $(HELMFILE)
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	mkdir -p $(BUILDDIR)/$(NAME)/locale/
+	mkdir -p $(BUILDDIR)/$(NAME)/static/
+	mkdir -p $(BUILDDIR)/$(NAME)/templates/
+	mkdir -p $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(NAME)
-	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/kubectl
-	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/helm
-	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)-$(VERSION)-$@/config_example.yml
-	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)-$(VERSION)-$@/init-kubectl.sh
-	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)/$(NAME)
+	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)/kubectl
+	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)/helm
+	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)/locale/
+	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)/static/
+	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)/templates/
+	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)/config_example.yml
+	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)/init-kubectl.sh
+	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cd $(BUILDDIR) && tar -czvf $(NAME)-$(VERSION)-$@.tar.gz $(NAME)-$(VERSION)-$@
-	rm -rf $(BUILDDIR)/$(NAME)-$(VERSION)-$@ $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
+	cd $(BUILDDIR) && tar -czvf $(NAME).tar.gz $(NAME)
+	rm -rf $(BUILDDIR)/$(NAME) $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
 
 darwin-arm64:koko-ui
 	GOARCH=arm64 GOOS=darwin $(KOKOBUILD) -o $(BUILDDIR)/$(NAME)-$@ $(KOKOSRCFILE)
 	GOARCH=arm64 GOOS=darwin $(K8SCMDBUILD) -o $(BUILDDIR)/kubectl-$@ $(KUBECTLFILE)
 	GOARCH=arm64 GOOS=darwin $(K8SCMDBUILD) -o $(BUILDDIR)/helm-$@ $(HELMFILE)
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	mkdir -p $(BUILDDIR)/$(NAME)/locale/
+	mkdir -p $(BUILDDIR)/$(NAME)/static/
+	mkdir -p $(BUILDDIR)/$(NAME)/templates/
+	mkdir -p $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(NAME)
-	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/kubectl
-	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/helm
-	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)-$(VERSION)-$@/config_example.yml
-	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)-$(VERSION)-$@/init-kubectl.sh
-	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)/$(NAME)
+	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)/kubectl
+	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)/helm
+	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)/locale/
+	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)/static/
+	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)/templates/
+	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)/config_example.yml
+	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)/init-kubectl.sh
+	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cd $(BUILDDIR) && tar -czvf $(NAME)-$(VERSION)-$@.tar.gz $(NAME)-$(VERSION)-$@
-	rm -rf $(BUILDDIR)/$(NAME)-$(VERSION)-$@ $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
+	cd $(BUILDDIR) && tar -czvf $(NAME).tar.gz $(NAME)
+	rm -rf $(BUILDDIR)/$(NAME) $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
 
 linux-amd64:
 	GOARCH=amd64 GOOS=linux $(KOKOBUILD) -o $(BUILDDIR)/$(NAME)-$@ $(KOKOSRCFILE)
 	GOARCH=amd64 GOOS=linux $(K8SCMDBUILD) -o $(BUILDDIR)/kubectl-$@ $(KUBECTLFILE)
 	GOARCH=amd64 GOOS=linux $(K8SCMDBUILD) -o $(BUILDDIR)/helm-$@ $(HELMFILE)
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	mkdir -p $(BUILDDIR)/$(NAME)/locale/
+	mkdir -p $(BUILDDIR)/$(NAME)/static/
+	mkdir -p $(BUILDDIR)/$(NAME)/templates/
+	mkdir -p $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(NAME)
-	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/kubectl
-	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/helm
-	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)-$(VERSION)-$@/config_example.yml
-	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)-$(VERSION)-$@/init-kubectl.sh
-	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)/$(NAME)
+	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)/kubectl
+	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)/helm
+	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)/locale/
+	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)/static/
+	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)/templates/
+	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)/config_example.yml
+	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)/init-kubectl.sh
+	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cd $(BUILDDIR) && tar -czvf $(NAME)-$(VERSION)-$@.tar.gz $(NAME)-$(VERSION)-$@
-	rm -rf $(BUILDDIR)/$(NAME)-$(VERSION)-$@ $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
+	cd $(BUILDDIR) && tar -czvf $(NAME).tar.gz $(NAME)
+	rm -rf $(BUILDDIR)/$(NAME) $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
 
 linux-arm64:koko-ui
 	GOARCH=arm64 GOOS=linux $(KOKOBUILD) -o $(BUILDDIR)/$(NAME)-$@ $(KOKOSRCFILE)
 	GOARCH=arm64 GOOS=linux $(K8SCMDBUILD) -o $(BUILDDIR)/kubectl-$@ $(KUBECTLFILE)
 	GOARCH=arm64 GOOS=linux $(K8SCMDBUILD) -o $(BUILDDIR)/helm-$@ $(HELMFILE)
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	mkdir -p $(BUILDDIR)/$(NAME)/locale/
+	mkdir -p $(BUILDDIR)/$(NAME)/static/
+	mkdir -p $(BUILDDIR)/$(NAME)/templates/
+	mkdir -p $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(NAME)
-	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/kubectl
-	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/helm
-	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)-$(VERSION)-$@/config_example.yml
-	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)-$(VERSION)-$@/init-kubectl.sh
-	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)/$(NAME)
+	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)/kubectl
+	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)/helm
+	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)/locale/
+	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)/static/
+	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)/templates/
+	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)/config_example.yml
+	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)/init-kubectl.sh
+	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cd $(BUILDDIR) && tar -czvf $(NAME)-$(VERSION)-$@.tar.gz $(NAME)-$(VERSION)-$@
-	rm -rf $(BUILDDIR)/$(NAME)-$(VERSION)-$@ $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@
+	cd $(BUILDDIR) && tar -czvf $(NAME).tar.gz $(NAME)
+	rm -rf $(BUILDDIR)/$(NAME) $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@
 
 linux-loong64:koko-ui
 	GOARCH=loong64 GOOS=linux $(KOKOBUILD) -o $(BUILDDIR)/$(NAME)-$@ $(KOKOSRCFILE)
 	GOARCH=loong64 GOOS=linux $(K8SCMDBUILD) -o $(BUILDDIR)/kubectl-$@ $(KUBECTLFILE)
 	GOARCH=loong64 GOOS=linux $(K8SCMDBUILD) -o $(BUILDDIR)/helm-$@ $(HELMFILE)
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	mkdir -p $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	mkdir -p $(BUILDDIR)/$(NAME)/locale/
+	mkdir -p $(BUILDDIR)/$(NAME)/static/
+	mkdir -p $(BUILDDIR)/$(NAME)/templates/
+	mkdir -p $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(NAME)
-	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/kubectl
-	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)-$(VERSION)-$@/helm
-	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/locale/
-	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/static/
-	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/templates/
-	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)-$(VERSION)-$@/config_example.yml
-	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)-$(VERSION)-$@/init-kubectl.sh
-	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)-$(VERSION)-$@/$(UIDIR)/dist/
+	cp $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/$(NAME)/$(NAME)
+	cp $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/$(NAME)/kubectl
+	cp $(BUILDDIR)/helm-$@ $(BUILDDIR)/$(NAME)/helm
+	cp -r $(BASEPATH)/locale/* $(BUILDDIR)/$(NAME)/locale/
+	cp -r $(BASEPATH)/static/* $(BUILDDIR)/$(NAME)/static/
+	cp -r $(BASEPATH)/templates/* $(BUILDDIR)/$(NAME)/templates/
+	cp -r $(BASEPATH)/config_example.yml $(BUILDDIR)/$(NAME)/config_example.yml
+	cp -r $(BASEPATH)/utils/init-kubectl.sh $(BUILDDIR)/$(NAME)/init-kubectl.sh
+	cp -r $(UIDIR)/dist/* $(BUILDDIR)/$(NAME)/$(UIDIR)/dist/
 
-	cd $(BUILDDIR) && tar -czvf $(NAME)-$(VERSION)-$@.tar.gz $(NAME)-$(VERSION)-$@
-	rm -rf $(BUILDDIR)/$(NAME)-$(VERSION)-$@ $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
+	cd $(BUILDDIR) && tar -czvf $(NAME).tar.gz $(NAME)
+	rm -rf $(BUILDDIR)/$(NAME) $(BUILDDIR)/$(NAME)-$@ $(BUILDDIR)/kubectl-$@ $(BUILDDIR)/helm-$@
 
 # koko-ui:
 # 	@echo "build ui"

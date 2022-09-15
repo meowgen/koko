@@ -3,7 +3,7 @@ package auth
 import (
 	"net"
 	"strings"
-	"fmt"
+	//"fmt"
 
 	"github.com/gliderlabs/ssh"
 	gossh "golang.org/x/crypto/ssh"

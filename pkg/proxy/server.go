@@ -54,29 +54,6 @@ func NewServer(conn UserConnection, jmsService *service.JMService, opts ...Conne
 		setter(connOpts)
 	}
 	lang := connOpts.getLang()
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~информация о подключении")
-	logger.Infof(conn.ID())
-	logger.Infof(conn.LoginFrom())
-	logger.Infof(conn.RemoteAddr())
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~информация об опциях подключения")
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~пользователь")
-	logger.Infof(connOpts.ProtocolType)
-	logger.Infof(connOpts.user.Name)
-	logger.Infof(connOpts.user.Username)
-	logger.Infof(connOpts.user.Role)
-	logger.Infof(connOpts.user.Email)
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~системный пользователь")
-	logger.Infof(connOpts.systemUser.Name)
-	logger.Infof(connOpts.systemUser.Username)
-	logger.Infof(connOpts.systemUser.Password)
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~ресурс")
-	logger.Infof(connOpts.asset.Hostname)
-	logger.Infof(connOpts.asset.IP)
-	logger.Infof(connOpts.asset.Platform)
-	
-
-
 
 	if err := srvconn.IsSupportedProtocol(connOpts.ProtocolType); err != nil {
 		logger.Errorf("Conn[%s] checking protocol %s failed: %s", conn.ID(),
@@ -824,17 +801,6 @@ func (s *Server) getSSHConn() (srvConn *srvconn.SSHConnection, err error) {
 	if s.suFromSystemUserAuthInfo != nil {
 		loginSystemUser = s.suFromSystemUserAuthInfo
 	}
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~systemuser auth info")
-	logger.Infof(s.systemUserAuthInfo.Name)
-	logger.Infof(s.systemUserAuthInfo.ID)
-	logger.Infof(s.systemUserAuthInfo.Username)
-	logger.Infof(s.systemUserAuthInfo.Protocol)
-	logger.Infof(s.systemUserAuthInfo.LoginMode)
-	logger.Infof(s.systemUserAuthInfo.Password)
-	logger.Infof(s.systemUserAuthInfo.PrivateKey)
-	logger.Infof(s.systemUserAuthInfo.AdDomain)
-	logger.Infof(s.systemUserAuthInfo.OrgId)
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 	key := srvconn.MakeReuseSSHClientKey(s.connOpts.user.ID, s.connOpts.asset.ID, loginSystemUser.ID,
 		s.connOpts.asset.IP, loginSystemUser.Username)
@@ -845,12 +811,7 @@ func (s *Server) getSSHConn() (srvConn *srvconn.SSHConnection, err error) {
 	sshAuthOpts = append(sshAuthOpts, srvconn.SSHClientPort(s.connOpts.asset.ProtocolPort(loginSystemUser.Protocol)))
 	sshAuthOpts = append(sshAuthOpts, srvconn.SSHClientPassword(loginSystemUser.Password))
 	sshAuthOpts = append(sshAuthOpts, srvconn.SSHClientTimeout(timeout))
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ssh auth opts")
-	logger.Infof(loginSystemUser.Username)
-	logger.Infof(s.connOpts.asset.IP)
-	logger.Infof(strconv.Itoa(s.connOpts.asset.ProtocolPort(loginSystemUser.Protocol)))
-	logger.Infof(loginSystemUser.Password)
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
 	if loginSystemUser.PrivateKey != "" {
 		// 先使用 password 解析 PrivateKey
 		if signer, err1 := gossh.ParsePrivateKeyWithPassphrase([]byte(loginSystemUser.PrivateKey),
@@ -915,10 +876,7 @@ func (s *Server) getSSHConn() (srvConn *srvconn.SSHConnection, err error) {
 		Width:  pty.Window.Width,
 		Height: pty.Window.Height,
 	}))
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ssh connect opts")
-	logger.Infof(s.platform.Charset)
-	logger.Infof(pty.Term)
-	logger.Infof("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
 	if s.suFromSystemUserAuthInfo != nil {
 		/*
 			suSystemUserAuthInfo 是 switch user

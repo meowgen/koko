@@ -17,6 +17,8 @@ import (
 
 	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
 var Version = "unknown"
@@ -121,6 +123,7 @@ func MustRegisterTerminalAccount() (key model.AccessKey) {
 	for i := 0; i < 10; i++ {
 		terminal, err := service.RegisterTerminalAccount(conf.CoreHost,
 			conf.Name, conf.BootstrapToken)
+		spew.Dump(conf)
 		if err != nil {
 			logger.Error(err.Error())
 			time.Sleep(5 * time.Second)
