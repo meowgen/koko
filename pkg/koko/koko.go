@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	"math/rand"
+	"strconv"
 
 	"github.com/meowgen/koko/pkg/config"
 	"github.com/meowgen/koko/pkg/exchange"
@@ -18,7 +20,7 @@ import (
 	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
 
-	"github.com/davecgh/go-spew/spew"
+	//"github.com/davecgh/go-spew/spew"
 )
 
 var Version = "unknown"
@@ -120,25 +122,21 @@ func MustLoadValidAccessKey() model.AccessKey {
 
 func MustRegisterTerminalAccount() (key model.AccessKey) {
 	conf := config.GlobalConfig
-	for i := 0; i < 10; i++ {
-		terminal, err := service.RegisterTerminalAccount(conf.CoreHost,
-			conf.Name, conf.BootstrapToken)
-		spew.Dump(conf)
+	rand.Seed(time.Now().UnixNano())
+	randomNumber := strconv.Itoa(rand.Intn(100000))
+	terminal, err := service.RegisterTerminalAccount(conf.CoreHost,
+		randomNumber, conf.BootstrapToken)
 		if err != nil {
 			logger.Error(err.Error())
-			time.Sleep(5 * time.Second)
-			continue
+			os.Exit(1)
+			return
 		}
-		key.ID = terminal.ServiceAccount.AccessKey.ID
-		key.Secret = terminal.ServiceAccount.AccessKey.Secret
-		if err := key.SaveToFile(conf.AccessKeyFilePath); err != nil {
-			logger.Error("保存key失败: " + err.Error())
-		}
-		return key
+	key.ID = terminal.ServiceAccount.AccessKey.ID
+	key.Secret = terminal.ServiceAccount.AccessKey.Secret
+	if err := key.SaveToFile(conf.AccessKeyFilePath); err != nil {
+		logger.Error("保存key失败: " + err.Error())
 	}
-	logger.Error("注册终端失败退出")
-	os.Exit(1)
-	return
+	return key
 }
 
 func MustValidKey(key model.AccessKey) model.AccessKey {

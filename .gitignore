@@ -20,6 +20,7 @@ cmd/koko
 cmd/logs
 cmd/kokodir
 build
+meowgenkoko
 release
 !config_example.yml
 *.yml
