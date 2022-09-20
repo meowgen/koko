@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/LeeEirc/httpsig"
+	//"github.com/davecgh/go-spew/spew"
+	//"github.com/meowgen/koko/pkg/logger"
 )
 
 var (

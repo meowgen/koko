@@ -21,6 +21,8 @@ import (
 	"github.com/meowgen/koko/pkg/srvconn"
 	"github.com/meowgen/koko/pkg/sshd"
 	"github.com/meowgen/koko/pkg/utils"
+
+	//"github.com/davecgh/go-spew/spew"
 )
 
 const (

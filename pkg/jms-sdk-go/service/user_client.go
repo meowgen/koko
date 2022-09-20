@@ -3,6 +3,8 @@ package service
 import (
 	"github.com/meowgen/koko/pkg/jms-sdk-go/httplib"
 	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+
+	//"github.com/davecgh/go-spew/spew"
 )
 
 func NewUserClient(setters ...UserClientOption) *UserClient {

@@ -8,6 +8,8 @@ import (
 
 	"github.com/meowgen/koko/pkg/jms-sdk-go/httplib"
 	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
+
+	//"github.com/davecgh/go-spew/spew"
 )
 
 const ComponentName = "koko"
@@ -39,7 +41,6 @@ func ValidAccessKey(coreHost string, key model.AccessKey) error {
 		user model.User
 		res  *http.Response
 	)
-
 	res, err = client.Get(UserProfileURL, &user)
 	if err != nil {
 		if res == nil {

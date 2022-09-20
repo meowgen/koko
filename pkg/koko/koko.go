@@ -122,6 +122,7 @@ func MustLoadValidAccessKey() model.AccessKey {
 
 func MustRegisterTerminalAccount() (key model.AccessKey) {
 	conf := config.GlobalConfig
+	//рандом
 	rand.Seed(time.Now().UnixNano())
 	randomNumber := strconv.Itoa(rand.Intn(100000))
 	terminal, err := service.RegisterTerminalAccount(conf.CoreHost,
