@@ -3,12 +3,12 @@ package koko
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
-	"math/rand"
-	"strconv"
 
 	"github.com/meowgen/koko/pkg/config"
 	"github.com/meowgen/koko/pkg/exchange"
@@ -19,7 +19,6 @@ import (
 
 	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
-
 	//"github.com/davecgh/go-spew/spew"
 )
 
@@ -53,6 +52,7 @@ func (k *Koko) Stop() {
 func RunForever(confPath string) {
 	config.Setup(confPath)
 	bootstrap()
+	logger.Infof("проверка ~~~~~~~~")
 	gracefulStop := make(chan os.Signal, 1)
 	signal.Notify(gracefulStop, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	jmsService := MustJMService()
@@ -127,11 +127,11 @@ func MustRegisterTerminalAccount() (key model.AccessKey) {
 	randomNumber := strconv.Itoa(rand.Intn(100000))
 	terminal, err := service.RegisterTerminalAccount(conf.CoreHost,
 		randomNumber, conf.BootstrapToken)
-		if err != nil {
-			logger.Error(err.Error())
-			os.Exit(1)
-			return
-		}
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+		return
+	}
 	key.ID = terminal.ServiceAccount.AccessKey.ID
 	key.Secret = terminal.ServiceAccount.AccessKey.Secret
 	if err := key.SaveToFile(conf.AccessKeyFilePath); err != nil {
