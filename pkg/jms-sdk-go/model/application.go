@@ -9,14 +9,16 @@ type k8sAttrs struct {
 }
 
 type dbAttrs struct {
-	Host              string `json:"host"`
-	Port              int    `json:"port"`
-	Database          string `json:"database"`
-	UseSSL            bool   `json:"use_ssl"`
-	CaCert            string `json:"ca_cert"`
-	ClientCert        string `json:"client_cert"`
-	CertKey           string `json:"cert_key"`
-	AllowInvalidCert  bool   `json:"allow_invalid_cert"`
+	Host               string `json:"host"`
+	Port               int    `json:"port"`
+	Database           string `json:"database"`
+	UseSSL             bool   `json:"use_ssl"`
+	CaCert             string `json:"ca_cert"`
+	ClientCert         string `json:"client_cert"`
+	CertKey            string `json:"cert_key"`
+	AllowInvalidCert   bool   `json:"allow_invalid_cert"`
+	PathToDb           string `json:"path_to_db"`
+	CreateDbIfNotExist bool   `json:"create_db_if_not_exist"`
 }
 
 const (
@@ -28,11 +30,13 @@ const (
 	AppTypePostgres  = "postgresql"
 	AppTypeRedis     = "redis"
 	AppTypeMongoDB   = "mongodb"
+	AppTypeSQLite    = "sqlite"
+	AppTypeOracle    = "oracle"
 )
 
 var (
 	SupportedDBTypes = []string{AppTypeMySQL, AppTypeMariaDB, AppTypeSQLServer,
-		AppTypePostgres, AppTypeRedis, AppTypeMongoDB}
+		AppTypePostgres, AppTypeRedis, AppTypeMongoDB, AppTypeSQLite, AppTypeOracle}
 )
 
 const AppType = "Application"
@@ -47,7 +51,7 @@ type Application struct {
 	OrgID    string `json:"org_id"`
 	OrgName  string `json:"org_name"`
 
-	Attrs    Attrs  `json:"attrs"`
+	Attrs Attrs `json:"attrs"`
 }
 
 type Attrs struct {

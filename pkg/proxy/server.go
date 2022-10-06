@@ -62,7 +62,8 @@ func NewServer(conn UserConnection, jmsService *service.JMService, opts ...Conne
 		switch {
 		case errors.Is(err, srvconn.ErrMySQLClient), errors.Is(err, srvconn.ErrSQLServerClient),
 			errors.Is(err, srvconn.ErrRedisClient), errors.Is(err, srvconn.ErrMongoDBClient),
-			errors.Is(err, srvconn.ErrPostgreSQLClient), errors.Is(err, srvconn.ErrKubectlClient):
+			errors.Is(err, srvconn.ErrPostgreSQLClient), errors.Is(err, srvconn.ErrKubectlClient),
+			errors.Is(err, srvconn.ErrSQLiteClient), errors.Is(err, srvconn.ErrOracleClient):
 			errMsg = lang.T("%s protocol client not installed.")
 			errMsg = fmt.Sprintf(errMsg, connOpts.ProtocolType)
 			err = fmt.Errorf("%w: %s", ErrMissClient, err)
@@ -135,7 +136,7 @@ func NewServer(conn UserConnection, jmsService *service.JMService, opts ...Conne
 	switch connOpts.ProtocolType {
 	case srvconn.ProtocolMySQL, srvconn.ProtocolMariadb, srvconn.ProtocolSQLServer,
 		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL,
-		srvconn.ProtocolK8s:
+		srvconn.ProtocolK8s, srvconn.ProtocolOracle:
 		if sysUserAuthInfo == nil {
 			authInfo, err2 := jmsService.GetUserApplicationAuthInfo(connOpts.systemUser.ID, connOpts.app.ID,
 				connOpts.user.ID, connOpts.user.Username)
@@ -160,6 +161,34 @@ func NewServer(conn UserConnection, jmsService *service.JMService, opts ...Conne
 		if connOpts.k8sContainer != nil {
 			assetName = connOpts.k8sContainer.K8sName(assetName)
 		}
+		apiSession = &model.Session{
+			ID:           common.UUID(),
+			User:         connOpts.user.String(),
+			SystemUser:   sysUserAuthInfo.String(),
+			LoginFrom:    conn.LoginFrom(),
+			RemoteAddr:   conn.RemoteAddr(),
+			Protocol:     connOpts.systemUser.Protocol,
+			UserID:       connOpts.user.ID,
+			SystemUserID: connOpts.systemUser.ID,
+			Asset:        assetName,
+			AssetID:      connOpts.app.ID,
+			OrgID:        connOpts.app.OrgID,
+		}
+	// here
+	case srvconn.ProtocolSQLite:
+		if sysUserAuthInfo == nil {
+			authInfo, err2 := jmsService.GetUserApplicationAuthInfo(connOpts.systemUser.ID, connOpts.app.ID,
+				connOpts.user.ID, connOpts.user.Username)
+			if err2 != nil {
+				return nil, fmt.Errorf("%w: %s", ErrAPIFailed, err2)
+			}
+			sysUserAuthInfo = &authInfo
+		}
+		checkConnectPermFunc = func() (model.ExpireInfo, error) {
+			return jmsService.ValidateApplicationPermission(connOpts.user.ID,
+				connOpts.app.ID, connOpts.systemUser.ID)
+		}
+		assetName := connOpts.app.Name
 		apiSession = &model.Session{
 			ID:           common.UUID(),
 			User:         connOpts.user.String(),
@@ -439,7 +468,7 @@ func (s *Server) GenerateCommandItem(user, input, output string,
 
 	case srvconn.ProtocolMySQL, srvconn.ProtocolMariadb, srvconn.ProtocolSQLServer,
 		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL,
-		srvconn.ProtocolK8s:
+		srvconn.ProtocolK8s, srvconn.ProtocolOracle:
 		server = s.connOpts.app.Name
 		if s.connOpts.k8sContainer != nil {
 			server = s.connOpts.k8sContainer.K8sName(server)
@@ -511,7 +540,7 @@ func (s *Server) checkRequiredAuth() error {
 			return errors.New("no auth token")
 		}
 	case srvconn.ProtocolMySQL, srvconn.ProtocolMariadb, srvconn.ProtocolTELNET,
-		srvconn.ProtocolSQLServer, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL:
+		srvconn.ProtocolSQLServer, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL, srvconn.ProtocolOracle:
 		if err := s.getUsernameIfNeed(); err != nil {
 			msg := utils.WrapperWarn(lang.T("Get auth username failed"))
 			utils.IgnoreErrWriteString(s.UserConn, msg)
@@ -528,6 +557,8 @@ func (s *Server) checkRequiredAuth() error {
 			utils.IgnoreErrWriteString(s.UserConn, msg)
 			return fmt.Errorf("get auth password failed: %s", err)
 		}
+	case srvconn.ProtocolSQLite:
+		return nil
 	case srvconn.ProtocolSSH:
 		if err := s.getUsernameIfNeed(); err != nil {
 			msg := utils.WrapperWarn(lang.T("Get auth username failed"))
@@ -620,7 +651,7 @@ func (s *Server) createAvailableGateWay(domain *model.Domain) (*domainGateway, e
 			dstPort: dstPort,
 		}
 	case srvconn.ProtocolMySQL, srvconn.ProtocolMariadb, srvconn.ProtocolSQLServer,
-		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL:
+		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL, srvconn.ProtocolSQLite, srvconn.ProtocolOracle:
 		dGateway = &domainGateway{
 			domain:  domain,
 			dstIP:   s.connOpts.app.Attrs.Host,
@@ -703,6 +734,28 @@ func (s *Server) getMySQLConn(localTunnelAddr *net.TCPAddr) (srvConn *srvconn.My
 	return
 }
 
+func (s *Server) getSQLiteConn(localTunnelAddr *net.TCPAddr) (srvConn *srvconn.SQLiteConn, err error) {
+	path := s.connOpts.app.Attrs.PathToDb
+	createDbIfNotExist := s.connOpts.app.Attrs.CreateDbIfNotExist
+	host := s.connOpts.app.Attrs.Host
+	port := s.connOpts.app.Attrs.Port
+	if localTunnelAddr != nil {
+		host = "127.0.0.1"
+		port = localTunnelAddr.Port
+	}
+	srvConn, err = srvconn.NewSQLiteConnection(
+		srvconn.SqlHost(host),
+		srvconn.SqlPort(port),
+		srvconn.SqlPathToDb(path),
+		srvconn.SqlCreateDbIfNotExist(createDbIfNotExist),
+		srvconn.SqlPtyWin(srvconn.Windows{
+			Width:  s.UserConn.Pty().Window.Width,
+			Height: s.UserConn.Pty().Window.Height,
+		}),
+	)
+	return
+}
+
 func (s *Server) getRedisConn(localTunnelAddr *net.TCPAddr) (srvConn *srvconn.RedisConn, err error) {
 	host := s.connOpts.app.Attrs.Host
 	port := s.connOpts.app.Attrs.Port
@@ -762,6 +815,27 @@ func (s *Server) getSQLServerConn(localTunnelAddr *net.TCPAddr) (srvConn *srvcon
 		port = localTunnelAddr.Port
 	}
 	srvConn, err = srvconn.NewSQLServerConnection(
+		srvconn.SqlHost(host),
+		srvconn.SqlPort(port),
+		srvconn.SqlUsername(s.systemUserAuthInfo.Username),
+		srvconn.SqlPassword(s.systemUserAuthInfo.Password),
+		srvconn.SqlDBName(s.connOpts.app.Attrs.Database),
+		srvconn.SqlPtyWin(srvconn.Windows{
+			Width:  s.UserConn.Pty().Window.Width,
+			Height: s.UserConn.Pty().Window.Height,
+		}),
+	)
+	return
+}
+
+func (s *Server) getOracleConn(localTunnelAddr *net.TCPAddr) (srvConn *srvconn.OracleConn, err error) {
+	host := s.connOpts.app.Attrs.Host
+	port := s.connOpts.app.Attrs.Port
+	if localTunnelAddr != nil {
+		host = "127.0.0.1"
+		port = localTunnelAddr.Port
+	}
+	srvConn, err = srvconn.NewOracleConnection(
 		srvconn.SqlHost(host),
 		srvconn.SqlPort(port),
 		srvconn.SqlUsername(s.systemUserAuthInfo.Username),
@@ -1000,6 +1074,10 @@ func (s *Server) getServerConn(proxyAddr *net.TCPAddr) (srvconn.ServerConnection
 		return s.getMongoDBConn(proxyAddr)
 	case srvconn.ProtocolPostgreSQL:
 		return s.getPostgreSQLConn(proxyAddr)
+	case srvconn.ProtocolSQLite:
+		return s.getSQLiteConn(proxyAddr)
+	case srvconn.ProtocolOracle:
+		return s.getOracleConn(proxyAddr)
 	default:
 		return nil, ErrUnMatchProtocol
 	}
@@ -1047,7 +1125,7 @@ func (s *Server) checkLoginConfirm() bool {
 	switch s.connOpts.ProtocolType {
 	case srvconn.ProtocolMySQL, srvconn.ProtocolMariadb, srvconn.ProtocolSQLServer,
 		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL,
-		srvconn.ProtocolK8s:
+		srvconn.ProtocolK8s, srvconn.ProtocolSQLite, srvconn.ProtocolOracle:
 		targetType = model.AppType
 		targetId = s.connOpts.app.ID
 	default:
@@ -1113,7 +1191,7 @@ func (s *Server) Proxy() {
 		switch s.connOpts.ProtocolType {
 		case srvconn.ProtocolMySQL, srvconn.ProtocolMariadb, srvconn.ProtocolSQLServer,
 			srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolK8s,
-			srvconn.ProtocolPostgreSQL:
+			srvconn.ProtocolPostgreSQL, srvconn.ProtocolOracle:
 			dGateway, err := s.createAvailableGateWay(s.domainGateways)
 			if err != nil {
 				msg := lang.T("Start domain gateway failed %s")

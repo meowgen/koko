@@ -148,7 +148,7 @@ func (opts *ConnectionOptions) TerminalTitle() string {
 			opts.systemUser.Username,
 			opts.asset.IP)
 	case srvconn.ProtocolMySQL, srvconn.ProtocolMariadb, srvconn.ProtocolSQLServer,
-		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB:
+		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolSQLite, srvconn.ProtocolOracle:
 		title = fmt.Sprintf("%s://%s@%s",
 			opts.ProtocolType,
 			opts.systemUser.Username,
@@ -169,7 +169,8 @@ func (opts *ConnectionOptions) ConnectMsg() string {
 		srvconn.ProtocolSSH:
 		msg = fmt.Sprintf(lang.T("Connecting to %s@%s"), opts.systemUser.Name, opts.asset.IP)
 	case srvconn.ProtocolMySQL, srvconn.ProtocolMariadb, srvconn.ProtocolSQLServer,
-		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL:
+		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL,
+		srvconn.ProtocolSQLite, srvconn.ProtocolOracle:
 		msg = fmt.Sprintf(lang.T("Connecting to Database %s"), opts.app)
 	case srvconn.ProtocolK8s:
 		msg = fmt.Sprintf(lang.T("Connecting to Kubernetes %s"), opts.app.Attrs.Cluster)

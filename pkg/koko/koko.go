@@ -52,7 +52,6 @@ func (k *Koko) Stop() {
 func RunForever(confPath string) {
 	config.Setup(confPath)
 	bootstrap()
-	logger.Infof("проверка ~~~~~~~~")
 	gracefulStop := make(chan os.Signal, 1)
 	signal.Notify(gracefulStop, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	jmsService := MustJMService()

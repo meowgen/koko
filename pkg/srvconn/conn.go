@@ -34,12 +34,14 @@ const (
 	ProtocolTELNET = "telnet"
 	ProtocolK8s    = "k8s"
 
-	ProtocolMySQL     = "mysql"
-	ProtocolMariadb   = "mariadb"
-	ProtocolSQLServer = "sqlserver"
-	ProtocolRedis     = "redis"
-	ProtocolMongoDB   = "mongodb"
-	ProtocolPostgreSQL   = "postgresql"
+	ProtocolMySQL      = "mysql"
+	ProtocolMariadb    = "mariadb"
+	ProtocolSQLServer  = "sqlserver"
+	ProtocolRedis      = "redis"
+	ProtocolMongoDB    = "mongodb"
+	ProtocolPostgreSQL = "postgresql"
+	ProtocolSQLite     = "sqlite"
+	ProtocolOracle     = "oracle"
 )
 
 var (
@@ -50,23 +52,27 @@ var (
 	ErrMySQLClient     = errors.New("not found MySQL client")
 	ErrSQLServerClient = errors.New("not found SQLServer client")
 
-	ErrRedisClient   = errors.New("not found Redis client")
-	ErrMongoDBClient = errors.New("not found MongoDB client")
+	ErrRedisClient      = errors.New("not found Redis client")
+	ErrMongoDBClient    = errors.New("not found MongoDB client")
 	ErrPostgreSQLClient = errors.New("not found PostgreSQL client")
+	ErrSQLiteClient     = errors.New("not found SQLite client")
+	ErrOracleClient     = errors.New("not found Oracle client")
 )
 
 type supportedChecker func() error
 
 var supportedMap = map[string]supportedChecker{
-	ProtocolSSH:       builtinSupported,
-	ProtocolTELNET:    builtinSupported,
-	ProtocolK8s:       kubectlSupported,
-	ProtocolMySQL:     mySQLSupported,
-	ProtocolMariadb:   mySQLSupported,
-	ProtocolSQLServer: sqlServerSupported,
-	ProtocolRedis:     redisSupported,
-	ProtocolMongoDB:   mongoDBSupported,
-	ProtocolPostgreSQL:   postgreSQLSupported,
+	ProtocolSSH:        builtinSupported,
+	ProtocolTELNET:     builtinSupported,
+	ProtocolK8s:        kubectlSupported,
+	ProtocolMySQL:      mySQLSupported,
+	ProtocolMariadb:    mySQLSupported,
+	ProtocolSQLServer:  sqlServerSupported,
+	ProtocolRedis:      redisSupported,
+	ProtocolMongoDB:    mongoDBSupported,
+	ProtocolPostgreSQL: postgreSQLSupported,
+	ProtocolSQLite:     sqliteSupported,
+	ProtocolOracle:     oracleSupported,
 }
 
 func IsSupportedProtocol(p string) error {
@@ -163,6 +169,33 @@ func postgreSQLSupported() error {
 	return ErrPostgreSQLClient
 }
 
+func sqliteSupported() error {
+	checkLine := "sqlite3 -help"
+	cmd := exec.Command("bash", "-c", checkLine)
+	out, err := cmd.CombinedOutput()
+	if err != nil && len(out) == 0 {
+		return fmt.Errorf("%w: %s", ErrSQLiteClient, err)
+	}
+	if bytes.HasPrefix(out, []byte("Usage:")) {
+		return nil
+	}
+	return ErrSQLiteClient
+
+}
+
+func oracleSupported() error {
+	checkLine := "sqlplus -V"
+	cmd := exec.Command("bash", "-c", checkLine)
+	out, err := cmd.CombinedOutput()
+	if err != nil && len(out) == 0 {
+		return fmt.Errorf("%w: %s", ErrOracleClient, err)
+	}
+	if bytes.HasPrefix(out, []byte("\nSQL*Plus:")) {
+		return nil
+	}
+	return ErrOracleClient
+
+}
 func MatchLoginPrefix(prefix string, dbType string, lcmd *localcommand.LocalCommand) (*localcommand.LocalCommand, error) {
 	var (
 		nr  int
@@ -218,7 +251,7 @@ func DoLogin(opt *sqlOption, lcmd *localcommand.LocalCommand, dbType string) (*l
 	return lcmd, nil
 }
 
-func StoreCAFileToLocal(caCert string) (caFilepath string, err error)  {
+func StoreCAFileToLocal(caCert string) (caFilepath string, err error) {
 	if caCert == "" {
 		return "", nil
 	}
@@ -234,7 +267,7 @@ func StoreCAFileToLocal(caCert string) (caFilepath string, err error)  {
 
 	filename := fmt.Sprintf("%s.pem", common.UUID())
 	caFilepath = filepath.Join(baseDir, filename)
-	file, err := os.OpenFile(caFilepath, os.O_WRONLY | os.O_CREATE, 0600)
+	file, err := os.OpenFile(caFilepath, os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		return "", err
 	}

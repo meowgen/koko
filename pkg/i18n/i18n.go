@@ -12,13 +12,7 @@ import (
 func Initial() {
 	cf := config.GetConf()
 	localePath := path.Join(cf.RootPath, "locale")
-	if strings.HasPrefix(strings.ToLower(cf.LanguageCode), "en") {
-		gotext.Configure(localePath, "en_US", "koko")
-	} else if strings.HasPrefix(strings.ToLower(cf.LanguageCode), "ja") {
-		gotext.Configure(localePath, "ja_JP", "koko")
-	} else {
-		gotext.Configure(localePath, "zh_CN", "koko")
-	}
+	gotext.Configure(localePath, "en_US", "koko")
 	setupLangMap(localePath)
 }
 

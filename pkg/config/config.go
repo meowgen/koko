@@ -97,14 +97,14 @@ func getDefaultConfig() Config {
 	}
 	return Config{
 		Name:              defaultName,
-		CoreHost:          "http://localhost:8080",
-		BootstrapToken:    "",
+		CoreHost:          "http://192.168.0.73",
+		BootstrapToken:    "MYKopyilpAQyKfp3FUNDYDeGhcnfeZj1k8TFRvZc7gtMsFzZL",
 		BindHost:          "0.0.0.0",
 		SSHPort:           "2222",
 		SSHTimeout:        15,
 		HTTPPort:          "5000",
 		AccessKeyFilePath: accessKeyFilePath,
-		LogLevel:          "INFO",
+		LogLevel:          "DEBUG",
 		RootPath:          rootPath,
 		DataFolderPath:    dataFolderPath,
 		LogDirPath:        LogDirPath,
@@ -112,7 +112,7 @@ func getDefaultConfig() Config {
 		ReplayFolderPath:  replayFolderPath,
 
 		Comment:             "KOKO",
-		UploadFailedReplay:  true,
+		UploadFailedReplay:  false,
 		ShowHiddenFile:      false,
 		ReuseConnection:     true,
 		AssetLoadPolicy:     "",
@@ -121,7 +121,7 @@ func getDefaultConfig() Config {
 		ClientAliveInterval: 30,
 		RetryAliveCountMax:  3,
 		ShareRoomType:       "local",
-		RedisHost:           "127.0.0.1",
+		RedisHost:           "http://192.168.0.12",
 		RedisPort:           "6379",
 		RedisPassword:       "",
 

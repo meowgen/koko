@@ -31,7 +31,7 @@ func registerWebHandlers(jmsService *service.JMService, webSrv *httpd.Server) {
 	kokoGroup.Static("/assets", "./ui/dist/assets")
 	kokoGroup.StaticFile("/favicon.ico", "./ui/dist/favicon.ico")
 	kokoGroup.GET("/health/", webSrv.HealthStatusHandler)
-	eng.LoadHTMLFiles("./templates/elfinder/file_manager.html")
+	eng.LoadHTMLFiles("/opt/koko/templates/elfinder/file_manager.html")
 	wsGroup := kokoGroup.Group("/ws/")
 	{
 		wsGroup.Group("/terminal").Use(
