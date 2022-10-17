@@ -16,11 +16,13 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gliderlabs/ssh v0.3.3
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/godror/godror v0.34.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.1+incompatible
 	github.com/jarcoal/httpmock v1.0.4
 	github.com/leonelquinteros/gotext v1.4.0
 	github.com/lib/pq v1.10.5
+	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/mediocregopher/radix/v3 v3.8.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pires/go-proxyproto v0.6.2
@@ -54,12 +56,11 @@ require (
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
-	github.com/godror/godror v0.34.0 // indirect
 	github.com/godror/knownpb v0.1.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/golang/snappy v0.0.1 // indirect
+	github.com/golang/snappy v0.0.3 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
@@ -74,7 +75,6 @@ require (
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/moby/spdystream v0.2.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

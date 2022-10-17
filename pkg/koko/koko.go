@@ -32,7 +32,7 @@ type Koko struct {
 const (
 	timeFormat      = "2006-01-02 15:04:05"
 	startWelcomeMsg = `%s
-KoKo Version %s, more see https://www.meowgen.org
+KoKo Version %s
 Quit the server with CONTROL-C.
 `
 )
@@ -65,6 +65,7 @@ func RunForever(confPath string) {
 	}
 	app.Start()
 	runTasks(jmsService)
+
 	<-gracefulStop
 	app.Stop()
 }
