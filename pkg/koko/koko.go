@@ -3,6 +3,7 @@ package koko
 import (
 	"errors"
 	"fmt"
+	mysqlProxy "github.com/meowgen/koko/pkg/go-mysql-proxy"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -27,6 +28,7 @@ var Version = "unknown"
 type Koko struct {
 	webSrv *httpd.Server
 	sshSrv *sshd.Server
+	dbSrv  *mysqlProxy.Server
 }
 
 const (
@@ -41,6 +43,7 @@ func (k *Koko) Start() {
 	fmt.Printf(startWelcomeMsg, time.Now().Format(timeFormat), Version)
 	go k.webSrv.Start()
 	go k.sshSrv.Start()
+	go mysqlProxy.Start(k.webSrv.JmsService)
 }
 
 func (k *Koko) Stop() {
@@ -64,6 +67,7 @@ func RunForever(confPath string) {
 		sshSrv: sshSrv,
 	}
 	app.Start()
+
 	runTasks(jmsService)
 
 	<-gracefulStop

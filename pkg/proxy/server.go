@@ -468,7 +468,7 @@ func (s *Server) GenerateCommandItem(user, input, output string,
 
 	case srvconn.ProtocolMySQL, srvconn.ProtocolMariadb, srvconn.ProtocolSQLServer,
 		srvconn.ProtocolRedis, srvconn.ProtocolMongoDB, srvconn.ProtocolPostgreSQL,
-		srvconn.ProtocolK8s, srvconn.ProtocolOracle:
+		srvconn.ProtocolK8s, srvconn.ProtocolOracle, srvconn.ProtocolSQLite:
 		server = s.connOpts.app.Name
 		if s.connOpts.k8sContainer != nil {
 			server = s.connOpts.k8sContainer.K8sName(server)

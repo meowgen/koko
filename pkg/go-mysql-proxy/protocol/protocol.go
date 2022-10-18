@@ -71,7 +71,7 @@ func (r *AuthorizationPacket) Decode(conn net.Conn) error {
 		}
 	}
 
-	position += len(r.Username)
+	position += len(r.Username) + 1
 
 	r.Password = payload[position : position+20]
 
@@ -86,21 +86,18 @@ func (r *AuthorizationPacket) Decode(conn net.Conn) error {
 }
 
 func (r AuthorizationPacket) Encode(salt []byte) ([]byte, error) {
+	username := r.Username
 	buf := make([]byte, 0)
 	buf = append(buf, r.PacketPart1...)
-	buf = append(buf, r.Username...)
-	pass :=
-		scramblePassword(salt, "proxy")
-	//fmt.Printf("len is %d", len(pass))
-	buf = append(buf, byte(len(pass)))
-	buf = append(buf, pass...)
+	buf = append(buf, username...)
+	buf = append(buf, 0x00)
+	buf = append(buf, byte(len(r.Password)))
+	buf = append(buf, r.Password...)
+	//todo: schema
 	authPlugin := []byte("mysql_native_password")
 	buf = append(buf, authPlugin...)
+	buf = append(buf, 0x00)
 	buf = append(buf, r.PacketPart2[len(authPlugin)+1:]...)
-
-	//p1 := hex.EncodeToString(r.Password)
-	//p2 := hex.EncodeToString(pass)
-	//fmt.Printf("salt :: %s pass :: %s mypass :: %s", salt, p1, p2)
 
 	h := PacketHeader{
 		Length:     uint32(len(buf)),
@@ -306,7 +303,7 @@ func (r InitialHandshakePacket) String() string {
 	return r.CapabilitiesFlags.String()
 }
 
-func scramblePassword(scramble []byte, password string) []byte {
+func ScramblePassword(scramble []byte, password string) []byte {
 	if len(password) == 0 {
 		return nil
 	}

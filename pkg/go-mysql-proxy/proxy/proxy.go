@@ -3,25 +3,28 @@ package proxy
 import (
 	"context"
 	"fmt"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
 	"log"
 	"net"
 )
 
-func NewProxy(host, port string, ctx context.Context) *Proxy {
+func NewProxy(host, port string, ctx context.Context, jmsService *service.JMService) *Proxy {
 	return &Proxy{
-		host: host,
-		port: port,
-		ctx: ctx,
+		host:       host,
+		port:       port,
+		ctx:        ctx,
+		jmsService: jmsService,
 	}
 }
 
 type Proxy struct {
+	jmsService     *service.JMService
 	host           string
 	port           string
 	connectionId   uint64
 	enableDecoding bool
-	ctx context.Context
-	shutDownAsked bool
+	ctx            context.Context
+	shutDownAsked  bool
 }
 
 func (r *Proxy) Start(port string) error {
@@ -45,7 +48,7 @@ func (r *Proxy) Start(port string) error {
 		if err != nil {
 			log.Printf("Failed to accept new connection: [%d] %s", r.connectionId, err.Error())
 			if r.shutDownAsked {
-				log.Printf("Shutdown asked [%d]", r.connectionId,)
+				log.Printf("Shutdown asked [%d]", r.connectionId)
 				break
 			}
 			continue
@@ -60,7 +63,7 @@ func (r *Proxy) Start(port string) error {
 
 func (r *Proxy) handle(conn net.Conn, connectionId uint64, enableDecoding bool) {
 	connection := NewConnection(r.host, r.port, conn, connectionId, enableDecoding)
-	err := connection.Handle()
+	err := connection.Handle(r.jmsService)
 	if err != nil {
 		log.Printf("Error handling proxy connection: %s", err.Error())
 	}

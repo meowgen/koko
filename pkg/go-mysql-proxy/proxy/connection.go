@@ -3,7 +3,8 @@ package proxy
 import (
 	"bytes"
 	"fmt"
-	"go-mysql-proxy/protocol"
+	"github.com/meowgen/koko/pkg/go-mysql-proxy/protocol"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
 	"io"
 	"log"
 	"net"
@@ -27,7 +28,7 @@ type Connection struct {
 	enableDecoding bool
 }
 
-func (r *Connection) Handle() error {
+func (r *Connection) Handle(jmsService *service.JMService) error {
 	address := fmt.Sprintf("%s%s", r.host, r.port)
 	mysql, err := net.Dial("tcp", address)
 	if err != nil {
@@ -60,7 +61,7 @@ func (r *Connection) Handle() error {
 	handshakePacket := &protocol.InitialHandshakePacket{}
 	err = handshakePacket.Decode(mysql)
 
-	//fmt.Printf("salt:: %v", handshakePacket.AuthPluginData)
+	//fmt.Printf("salt:: %v", handshakePacket.AuthPluginData)s
 
 	if err != nil {
 		log.Printf("Failed ot decode handshake initial packet: %s", err.Error())
@@ -79,6 +80,18 @@ func (r *Connection) Handle() error {
 
 	authorizationPacket := &protocol.AuthorizationPacket{}
 	err = authorizationPacket.Decode(r.conn)
+	fmt.Printf("username :: %s", authorizationPacket.Username)
+	token := authorizationPacket.Username
+	token = bytes.Trim(token, "\x00")
+
+	tokenAuth, err := jmsService.GetConnectTokenAuth(string(token))
+
+	hashedTokenSecret := protocol.ScramblePassword(handshakePacket.AuthPluginData, tokenAuth.Info.Secret)
+
+	if bytes.Compare(authorizationPacket.Password, hashedTokenSecret) == 0 {
+		authorizationPacket.Username = []byte(tokenAuth.Info.SystemUserAuthInfo.Username)
+		authorizationPacket.Password = protocol.ScramblePassword(handshakePacket.AuthPluginData, tokenAuth.Info.SystemUserAuthInfo.Password)
+	}
 
 	res, _ = authorizationPacket.Encode(handshakePacket.AuthPluginData)
 
