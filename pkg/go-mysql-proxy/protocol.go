@@ -136,6 +136,8 @@ type AuthorizationPacket struct {
 	PacketPart1 []byte
 	Username    []byte
 	Password    []byte
+	CapData     []byte
+	CapData2    []byte
 	PacketPart2 []byte
 }
 
@@ -174,9 +176,15 @@ func (r *AuthorizationPacket) Decode(conn net.Conn) error {
 
 	position += 20
 
-	if position > len(payload) {
-		return errors.New("ssl")
+	for _, element := range payload[position:] {
+		r.CapData = append(r.CapData, element)
+		if element == 0x00 {
+			break
+		}
 	}
+
+	position += len(r.CapData)
+
 	r.PacketPart2 = payload[position:]
 
 	//fmt.Printf("\n\n--------------------------Decode--------------------------\n\n")
@@ -193,10 +201,10 @@ func (r AuthorizationPacket) Encode() ([]byte, error) {
 	buf = append(buf, byte(len(r.Password)))
 	buf = append(buf, r.Password...)
 	//todo: schema
-	authPlugin := []byte("mysql_native_password")
-	buf = append(buf, authPlugin...)
-	buf = append(buf, 0x00)
-	buf = append(buf, r.PacketPart2[len(authPlugin)+1:]...)
+	buf = append(buf, r.CapData...)
+	//authPlugin := []byte("mysql_native_password")
+	//buf = append(buf, authPlugin...)
+	buf = append(buf, r.PacketPart2...)
 
 	h := PacketHeader{
 		Length:     uint32(len(buf)),

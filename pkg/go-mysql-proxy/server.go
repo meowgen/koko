@@ -49,13 +49,19 @@ func (fs *FakeServer) Start() {
 
 func (fs *FakeServer) handleClient(conn net.Conn) {
 	defer func() {
-		fs.CurrSession.cmdRecorder.End()
-		fs.CurrSession.replRecorder.End()
-		fs.CurrSession.DisConnectedCallback()
+		if fs.CurrSession != nil {
+			if fs.CurrSession.cmdRecorder != nil && fs.CurrSession.replRecorder != nil {
+				fs.CurrSession.cmdRecorder.End()
+				fs.CurrSession.replRecorder.End()
+			}
+			err := fs.CurrSession.DisConnectedCallback()
+			if err != nil {
+				fmt.Printf("error on disconnecting session")
+			}
+		}
 		fs.Conn.Close()
 	}()
 	fs.Conn = conn
-	// закрываем сокет при выходе из функции
 
 	fakeHandshakePacket := &FakeHandshakePacket{}
 
@@ -75,6 +81,16 @@ func (fs *FakeServer) handleClient(conn net.Conn) {
 
 	if err != nil {
 		fmt.Printf("invalid token")
+		return
+	}
+
+	checkConnectPermFunc := func() (model.ExpireInfo, error) {
+		return fs.JmsService.ValidateApplicationPermission(fs.Token.Info.User.ID,
+			fs.Token.Info.Application.ID, fs.Token.Info.SystemUserAuthInfo.ID)
+	}
+	perm, _ := checkConnectPermFunc()
+	if !perm.HasPermission {
+		fmt.Printf("no perm")
 		return
 	}
 	salt := append(fakeHandshakePacket.Salt, fakeHandshakePacket.Salt2...)
