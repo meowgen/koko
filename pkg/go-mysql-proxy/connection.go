@@ -83,10 +83,10 @@ type Response struct {
 func (req *Request) Write(packet []byte) (n int, err error) {
 
 	if len(packet) < 6 {
-		fmt.Printf("\nПроизошёл выход.\n")
-		req.currSess.cmdRecorder.End()
-		req.currSess.replRecorder.End()
-		req.currSess.DisConnectedCallback()
+		//fmt.Printf("\nПроизошёл выход.\n")
+		//req.currSess.cmdRecorder.End()
+		//req.currSess.replRecorder.End()
+		//req.currSess.DisConnectedCallback()
 		return len(packet), nil
 	}
 

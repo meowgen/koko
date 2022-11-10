@@ -35,12 +35,43 @@ type FakeHandshakePacket struct {
 	AuthenticationPlugin       []byte
 }
 
-func (r *FakeHandshakePacket) NewHandshakePacket() error {
+func (f *FakeHandshakePacket) IncrementConnectID(curID []byte) {
+	if curID == nil {
+		f.ThreadId = []byte{0x01, 0x00, 0x00, 0x00}
+		return
+	}
+
+	if curID[0] != 0xff {
+		curID[0] += 1
+		f.ThreadId = []byte{curID[0], curID[1], curID[2], curID[3]}
+		return
+	}
+	if curID[1] != 0xff {
+		curID[1] += 1
+		f.ThreadId = []byte{curID[0], curID[1], curID[2], curID[3]}
+		return
+	}
+	if curID[2] != 0xff {
+		curID[2] += 1
+		f.ThreadId = []byte{curID[0], curID[1], curID[2], curID[3]}
+		return
+	}
+	if curID[3] != 0xff {
+		curID[3] += 1
+		f.ThreadId = []byte{curID[0], curID[1], curID[2], curID[3]}
+		return
+	} else {
+		f.ThreadId = []byte{0x01, 0x00, 0x00, 0x00}
+		return
+	}
+}
+
+func (r *FakeHandshakePacket) NewHandshakePacket(connID []byte) error {
 	r.Protocol = byte(0x0a)
 
 	r.Version = []byte("8.0.30")
 
-	r.ThreadId = []byte{0x25, 0x00, 0x00, 0x000}
+	r.IncrementConnectID(connID)
 
 	rand.Seed(time.Now().UnixNano())
 
@@ -187,8 +218,8 @@ func (r *AuthorizationPacket) Decode(conn net.Conn) error {
 
 	r.PacketPart2 = payload[position:]
 
-	//fmt.Printf("\n\n--------------------------Decode--------------------------\n\n")
-	//dumpByteSlice(data[:header.Length+4])
+	fmt.Printf("\n\n--------------------------Decode--------------------------\n\n")
+	dumpByteSlice(data[:header.Length+4])
 
 	return nil
 }

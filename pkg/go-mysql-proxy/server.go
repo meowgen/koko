@@ -47,6 +47,8 @@ func (fs *FakeServer) Start() {
 	}
 }
 
+var connID = []byte{0x00, 0x00, 0x00, 0x00}
+
 func (fs *FakeServer) handleClient(conn net.Conn) {
 	defer func() {
 		if fs.CurrSession != nil {
@@ -65,7 +67,7 @@ func (fs *FakeServer) handleClient(conn net.Conn) {
 
 	fakeHandshakePacket := &FakeHandshakePacket{}
 
-	_ = fakeHandshakePacket.NewHandshakePacket()
+	_ = fakeHandshakePacket.NewHandshakePacket(connID)
 	packet, err := fakeHandshakePacket.Encode()
 	if err != nil {
 		fmt.Printf("%s", err)
@@ -220,10 +222,10 @@ func (fs *FakeServer) handleClient(conn net.Conn) {
 
 func GetAuthPacket(conn net.Conn) *AuthorizationPacket {
 	authorizationPacket := &AuthorizationPacket{}
-	err := authorizationPacket.Decode(conn)
-	if err != nil {
-		fmt.Println(err)
-		GetAuthPacket(conn)
-	}
+	authorizationPacket.Decode(conn)
+	//if err != nil {
+	//	fmt.Println(err)
+	//	GetAuthPacket(conn)
+	//}
 	return authorizationPacket
 }
