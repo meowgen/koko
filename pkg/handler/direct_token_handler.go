@@ -37,7 +37,7 @@ func (d *DirectHandler) LoginConnectToken() {
 	proxyOpts = append(proxyOpts, proxy.ConnectFilterRules(filterRules))
 	proxyOpts = append(proxyOpts, proxy.ConnectExpired(expiredAt))
 	proxyOpts = append(proxyOpts, proxy.ConnectSystemAuthInfo(systemUserAuthInfo))
-
+	// попробовать создать сервер так
 	srv, err := proxy.NewServer(d.wrapperSess, d.jmsService, proxyOpts...)
 	if err != nil {
 		logger.Error(err)

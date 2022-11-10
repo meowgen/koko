@@ -27,7 +27,7 @@ import (
 3. JMS_username@systemUser_uuid@asset_uuid
 4. JMS_username#systemUser_uuid#asset_uuid
 
-JMS_username: 			meowgen 平台上的用户名
+JMS_username: 			jumpserver 平台上的用户名
 systemUser_username：	对应系统用户的用户名
 asset_ip: 				对应资产的ip
 systemUser_uuid:		对应系统用户的UUID

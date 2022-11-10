@@ -2,11 +2,11 @@
 # NAME: {{ Hostname }}
 
 # meowgen项目的url, api请求注册会使用
-CORE_HOST: http://192.168.0.93/
+CORE_HOST: http://192.168.0.73/
 
 # Bootstrap Token, 预共享秘钥, 用来注册coco使用的service account和terminal
 # 请和meowgen 配置文件中保持一致，注册完成后可以删除
-BOOTSTRAP_TOKEN: MjliZjRmOTEtZmNmYS00MjZl
+BOOTSTRAP_TOKEN: MYKopyilpAQyKfp3FUNDYDeGhcnfeZj1k8TFRvZc7gtMsFzZL
 
 # 启动时绑定的ip, 默认 0.0.0.0
 # BIND_HOST: 0.0.0.0

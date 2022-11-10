@@ -17,6 +17,7 @@ const (
 
 	TokenAuthInfoURL = "/api/v1/authentication/connection-token/secret-info/detail/"
 	TokenRenewalURL  = "/api/v1/authentication/connection-token/renewal/"
+	//TokenExpireURL   = "/api/v1/authentication/connection-token/%s/expire/"
 )
 
 // Session相关API

@@ -79,7 +79,7 @@ func uploadRemainReplay(jmsService *service.JMService) {
 // keepHeartbeat 保持心跳
 func keepHeartbeat(jmsService *service.JMService) {
 	for {
-		time.Sleep(30 * time.Second)
+		time.Sleep(1 * time.Second)
 		data := proxy.GetAliveSessions()
 		tasks, err := jmsService.TerminalHeartBeat(data)
 		if err != nil {

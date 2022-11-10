@@ -131,7 +131,7 @@ func NewCommandStorage(jmsService *service.JMService, conf *model.TerminalConfig
 		{
 		'DOC_TYPE': 'command',
 		  'HOSTS': ['http://172.16.10.122:9200'],
-		  'INDEX': 'meowgen',
+		  'INDEX': 'jumpserver',
 		  'OTHER': {'IGNORE_VERIFY_CERTS': True},
 		  'TYPE': 'es'
 		}

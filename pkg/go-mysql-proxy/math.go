@@ -1,4 +1,4 @@
-package protocol
+package mysqlProxy
 
 func Max(x, y int) int {
 	if x > y {

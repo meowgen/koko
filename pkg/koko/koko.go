@@ -28,7 +28,7 @@ var Version = "unknown"
 type Koko struct {
 	webSrv *httpd.Server
 	sshSrv *sshd.Server
-	dbSrv  *mysqlProxy.Server
+	dbSrv  *mysqlProxy.FakeServer
 }
 
 const (
@@ -43,7 +43,7 @@ func (k *Koko) Start() {
 	fmt.Printf(startWelcomeMsg, time.Now().Format(timeFormat), Version)
 	go k.webSrv.Start()
 	go k.sshSrv.Start()
-	go mysqlProxy.Start(k.webSrv.JmsService)
+	go k.dbSrv.Start()
 }
 
 func (k *Koko) Stop() {
@@ -65,6 +65,7 @@ func RunForever(confPath string) {
 	app := &Koko{
 		webSrv: webSrv,
 		sshSrv: sshSrv,
+		dbSrv:  &mysqlProxy.FakeServer{JmsService: webSrv.JmsService},
 	}
 	app.Start()
 

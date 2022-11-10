@@ -1,4 +1,4 @@
-package protocol
+package mysqlProxy
 
 import (
 	"bytes"
@@ -6,7 +6,9 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"math/rand"
 	"net"
+	"time"
 )
 
 /*
@@ -15,6 +17,101 @@ PacketHeader represents packet header
 type PacketHeader struct {
 	Length     uint32
 	SequenceId uint8
+}
+
+type FakeHandshakePacket struct {
+	header                     *PacketHeader
+	Protocol                   byte
+	Version                    []byte
+	ThreadId                   []byte
+	Salt                       []byte
+	ServerCapabilities         []byte
+	ServerLanguage             byte
+	ServerStatus               []byte
+	ExtendedServerCapabilities []byte
+	AuthenticationPluginLength byte
+	Unused                     []byte
+	Salt2                      []byte
+	AuthenticationPlugin       []byte
+}
+
+func (r *FakeHandshakePacket) NewHandshakePacket() error {
+	r.Protocol = byte(0x0a)
+
+	r.Version = []byte("8.0.30")
+
+	r.ThreadId = []byte{0x25, 0x00, 0x00, 0x000}
+
+	rand.Seed(time.Now().UnixNano())
+
+	salt := make([]byte, 8)
+	rand.Read(salt)
+	r.Salt = salt
+
+	r.ServerCapabilities = []byte{0xff, 0xf7}
+
+	r.ServerLanguage = byte(0xff)
+
+	r.ServerStatus = []byte{0x02, 0x00}
+
+	r.ExtendedServerCapabilities = []byte{0xff, 0xdf}
+
+	r.AuthenticationPluginLength = byte(0x15)
+
+	r.Unused = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+
+	salt2 := make([]byte, 12)
+	rand.Read(salt2)
+	r.Salt2 = salt2
+
+	r.AuthenticationPlugin = []byte("mysql_native_password")
+
+	return nil
+}
+
+func (r *FakeHandshakePacket) Encode() ([]byte, error) {
+	buf := make([]byte, 0)
+	buf = append(buf, r.Protocol)
+	buf = append(buf, r.Version...)
+	buf = append(buf, byte(0x00))
+
+	buf = append(buf, r.ThreadId...)
+
+	buf = append(buf, r.Salt...)
+	buf = append(buf, byte(0x00))
+
+	buf = append(buf, r.ServerCapabilities...)
+
+	buf = append(buf, r.ServerLanguage)
+
+	buf = append(buf, r.ServerStatus...)
+
+	buf = append(buf, r.ExtendedServerCapabilities...)
+
+	buf = append(buf, r.AuthenticationPluginLength)
+
+	buf = append(buf, r.Unused...)
+
+	buf = append(buf, r.Salt2...)
+	buf = append(buf, byte(0x00))
+
+	buf = append(buf, r.AuthenticationPlugin...)
+
+	r.header = &PacketHeader{
+		Length:     uint32(len(buf)),
+		SequenceId: 0,
+	}
+
+	newBuf := make([]byte, 0, r.header.Length+4)
+
+	ln := make([]byte, 4)
+	binary.LittleEndian.PutUint32(ln, r.header.Length)
+
+	newBuf = append(newBuf, ln[:3]...)
+	newBuf = append(newBuf, r.header.SequenceId)
+	newBuf = append(newBuf, buf...)
+
+	return newBuf, nil
 }
 
 /*
@@ -77,6 +174,9 @@ func (r *AuthorizationPacket) Decode(conn net.Conn) error {
 
 	position += 20
 
+	if position > len(payload) {
+		return errors.New("ssl")
+	}
 	r.PacketPart2 = payload[position:]
 
 	//fmt.Printf("\n\n--------------------------Decode--------------------------\n\n")
@@ -85,11 +185,10 @@ func (r *AuthorizationPacket) Decode(conn net.Conn) error {
 	return nil
 }
 
-func (r AuthorizationPacket) Encode(salt []byte) ([]byte, error) {
-	username := r.Username
+func (r AuthorizationPacket) Encode() ([]byte, error) {
 	buf := make([]byte, 0)
 	buf = append(buf, r.PacketPart1...)
-	buf = append(buf, username...)
+	buf = append(buf, r.Username...)
 	buf = append(buf, 0x00)
 	buf = append(buf, byte(len(r.Password)))
 	buf = append(buf, r.Password...)
@@ -307,8 +406,7 @@ func ScramblePassword(scramble []byte, password string) []byte {
 	if len(password) == 0 {
 		return nil
 	}
-	scramble = scramble[:len(scramble)-1]
-	//fmt.Printf("соль    %v\n\n\n\n", scramble)
+
 	// stage1Hash = SHA1(password)
 	crypt := sha1.New()
 	crypt.Write([]byte(password))

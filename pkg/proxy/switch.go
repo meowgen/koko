@@ -22,24 +22,24 @@ type SwitchSession struct {
 	ID string
 
 	MaxIdleTime   int
-	keepAliveTime int
+	KeepAliveTime int
 
-	ctx    context.Context
-	cancel context.CancelFunc
+	Ctx    context.Context
+	Cancel context.CancelFunc
 
-	p *Server
+	P *Server
 
 	terminateAdmin atomic.Value // 终断会话的管理员名称
 }
 
 func (s *SwitchSession) Terminate(username string) {
 	select {
-	case <-s.ctx.Done():
+	case <-s.Ctx.Done():
 		return
 	default:
 		s.setTerminateAdmin(username)
 	}
-	s.cancel()
+	s.Cancel()
 	logger.Infof("Session[%s] receive terminate task from admin %s", s.ID, username)
 }
 
@@ -57,13 +57,13 @@ func (s *SwitchSession) SessionID() string {
 
 func (s *SwitchSession) recordCommand(cmdRecordChan chan *ExecutedCommand) {
 	// 命令记录
-	cmdRecorder := s.p.GetCommandRecorder()
+	cmdRecorder := s.P.GetCommandRecorder()
 	for item := range cmdRecordChan {
 		if item.Command == "" {
 			continue
 		}
 		cmd := s.generateCommandResult(item)
-		cmdRecorder.Record(cmd)
+		cmdRecorder.RecordCommand(cmd)
 	}
 	// 关闭命令记录
 	cmdRecorder.End()
@@ -98,15 +98,15 @@ func (s *SwitchSession) generateCommandResult(item *ExecutedCommand) *model.Comm
 	default:
 		riskLevel = model.NormalLevel
 	}
-	return s.p.GenerateCommandItem(user, input, output, riskLevel, item.CreatedDate)
+	return s.P.GenerateCommandItem(user, input, output, riskLevel, item.CreatedDate)
 }
 
 // Bridge 桥接两个链接
 func (s *SwitchSession) Bridge(userConn UserConnection, srvConn srvconn.ServerConnection) (err error) {
 
-	parser := s.p.GetFilterParser()
+	parser := s.P.GetFilterParser()
 	logger.Infof("Conn[%s] create ParseEngine success", userConn.ID())
-	replayRecorder := s.p.GetReplayRecorder()
+	replayRecorder := s.P.GetReplayRecorder()
 	logger.Infof("Conn[%s] create replay success", userConn.ID())
 	srvInChan := make(chan []byte, 1)
 	done := make(chan struct{})
@@ -169,7 +169,7 @@ func (s *SwitchSession) Bridge(userConn UserConnection, srvConn srvconn.ServerCo
 		exitSignal <- struct{}{}
 		close(srvInChan)
 	}()
-	user := s.p.connOpts.user
+	user := s.P.connOpts.user
 	meta := exchange.MetaMessage{
 		UserId:     user.ID,
 		User:       user.String(),
@@ -225,10 +225,11 @@ func (s *SwitchSession) Bridge(userConn UserConnection, srvConn srvconn.ServerCo
 		logger.Infof("Session[%s] user read end", s.ID)
 		exitSignal <- struct{}{}
 	}()
-	keepAliveTime := time.Duration(s.keepAliveTime) * time.Second
+	keepAliveTime := time.Duration(s.KeepAliveTime) * time.Second
 	keepAliveTick := time.NewTicker(keepAliveTime)
 	defer keepAliveTick.Stop()
-	lang := s.p.connOpts.getLang()
+	lang := s.P.connOpts.getLang()
+	// запись тут
 	for {
 		select {
 		// 检测是否超过最大空闲时间
@@ -242,7 +243,7 @@ func (s *SwitchSession) Bridge(userConn UserConnection, srvConn srvconn.ServerCo
 				room.Broadcast(&exchange.RoomMessage{Event: exchange.DataEvent, Body: []byte("\n\r" + msg)})
 				return
 			}
-			if s.p.CheckPermissionExpired(now) {
+			if s.P.CheckPermissionExpired(now) {
 				msg := lang.T("Permission has expired, disconnect")
 				logger.Infof("Session[%s] permission has expired, disconnect", s.ID)
 				msg = utils.WrapperWarn(msg)
@@ -252,7 +253,7 @@ func (s *SwitchSession) Bridge(userConn UserConnection, srvConn srvconn.ServerCo
 			}
 			continue
 			// 手动结束
-		case <-s.ctx.Done():
+		case <-s.Ctx.Done():
 			adminUser := s.loadTerminateAdmin()
 			msg := fmt.Sprintf(lang.T("Terminated by admin %s"), adminUser)
 			msg = utils.WrapperWarn(msg)

@@ -18,43 +18,43 @@ import (
 )
 
 type CommandRecorder struct {
-	sessionID string
-	storage   CommandStorage
+	SessionID string
+	Storage   CommandStorage
 
-	queue  chan *model.Command
-	closed chan struct{}
+	Queue  chan *model.Command
+	Closed chan struct{}
 
-	jmsService *service.JMService
+	JmsService *service.JMService
 }
 
-func (c *CommandRecorder) Record(command *model.Command) {
-	c.queue <- command
+func (c *CommandRecorder) RecordCommand(command *model.Command) {
+	c.Queue <- command
 }
 
 func (c *CommandRecorder) End() {
 	select {
-	case <-c.closed:
+	case <-c.Closed:
 		return
 	default:
 	}
-	close(c.closed)
+	close(c.Closed)
 }
 
-func (c *CommandRecorder) record() {
+func (c *CommandRecorder) Record() {
 	cmdList := make([]*model.Command, 0, 10)
 	notificationList := make([]*model.Command, 0, 10)
 	maxRetry := 0
-	logger.Infof("Session %s: Command recorder start", c.sessionID)
-	defer logger.Infof("Session %s: Command recorder close", c.sessionID)
+	logger.Infof("Session %s: Command recorder start", c.SessionID)
+	defer logger.Infof("Session %s: Command recorder close", c.SessionID)
 	tick := time.NewTicker(time.Second * 10)
 	defer tick.Stop()
 	for {
 		select {
-		case <-c.closed:
+		case <-c.Closed:
 			if len(cmdList) == 0 {
 				return
 			}
-		case p, ok := <-c.queue:
+		case p, ok := <-c.Queue:
 			if !ok {
 				return
 			}
@@ -71,20 +71,20 @@ func (c *CommandRecorder) record() {
 			}
 		}
 		if len(notificationList) > 0 {
-			if err := c.jmsService.NotifyCommand(notificationList); err == nil {
+			if err := c.JmsService.NotifyCommand(notificationList); err == nil {
 				notificationList = notificationList[:0]
 			} else {
-				logger.Errorf("Session %s: command notify err: %s", c.sessionID, err)
+				logger.Errorf("Session %s: command notify err: %s", c.SessionID, err)
 			}
 		}
-		err := c.storage.BulkSave(cmdList)
+		err := c.Storage.BulkSave(cmdList)
 		if err == nil {
 			cmdList = cmdList[:0]
 			maxRetry = 0
 			continue
 		}
 		if err != nil {
-			logger.Errorf("Session %s: command bulk save err: %s", c.sessionID, err)
+			logger.Errorf("Session %s: command bulk save err: %s", c.SessionID, err)
 		}
 
 		if maxRetry > 5 {

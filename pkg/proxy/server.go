@@ -252,6 +252,7 @@ func NewServer(conn UserConnection, jmsService *service.JMService, opts ...Conne
 			perms = &permission
 		}
 		platform = &assetPlatform
+		// что-то здесь
 		apiSession = &model.Session{
 			ID:           common.UUID(),
 			User:         connOpts.user.String(),
@@ -445,13 +446,13 @@ func (s *Server) GetReplayRecorder() *ReplyRecorder {
 
 func (s *Server) GetCommandRecorder() *CommandRecorder {
 	cmdR := CommandRecorder{
-		sessionID:  s.ID,
-		storage:    NewCommandStorage(s.jmsService, s.terminalConf),
-		queue:      make(chan *model.Command, 10),
-		closed:     make(chan struct{}),
-		jmsService: s.jmsService,
+		SessionID:  s.ID,
+		Storage:    NewCommandStorage(s.jmsService, s.terminalConf),
+		Queue:      make(chan *model.Command, 10),
+		Closed:     make(chan struct{}),
+		JmsService: s.jmsService,
 	}
-	go cmdR.record()
+	go cmdR.Record()
 	return &cmdR
 }
 
@@ -1158,10 +1159,10 @@ func (s *Server) Proxy() {
 	sw := SwitchSession{
 		ID:            s.ID,
 		MaxIdleTime:   s.terminalConf.MaxIdleTime,
-		keepAliveTime: 60,
-		ctx:           ctx,
-		cancel:        cancel,
-		p:             s,
+		KeepAliveTime: 60,
+		Ctx:           ctx,
+		Cancel:        cancel,
+		P:             s,
 	}
 	if err := s.CreateSessionCallback(); err != nil {
 		msg := lang.T("Connect with api server failed")
