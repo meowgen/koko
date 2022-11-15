@@ -103,7 +103,11 @@ func (req *Request) Write(packet []byte) (n int, err error) {
 		return len(packet), nil
 	case ComStmtPrepare:
 	case ComQuery:
-		req.buf.Write(packet[7:])
+		if packet[5] == 0x00 {
+			req.buf.Write(packet[7:])
+		} else {
+			req.buf.Write(packet[5:])
+		}
 	}
 
 	//if packet[4] != 3 {
@@ -136,9 +140,10 @@ func (req *Request) Write(packet []byte) (n int, err error) {
 	finalCmdBytes := append(mySqlPrompt, cmdBytes...)
 	req.currSess.cmdRecorder.RecordCommand(cmd)
 	req.currSess.replRecorder.Record(finalCmdBytes)
-
+	dumpByteSlice(packet)
 	req.buf.Reset()
 	return len(packet), nil
+
 }
 
 func (res *Response) Write(packet []byte) (n int, err error) {
@@ -155,6 +160,7 @@ func (res *Response) Write(packet []byte) (n int, err error) {
 	//	fmt.Printf("\nОтвет от сервера: %v\n", &res.buf)
 	//	res.buf.Reset()
 	//}
+	//dumpByteSlice(packet)
 
 	return len(packet), nil
 }
