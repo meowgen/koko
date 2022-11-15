@@ -82,7 +82,7 @@ func (fs *FakeServer) handleClient(conn net.Conn) {
 	fs.Token = &token
 
 	if err != nil {
-		fmt.Printf("invalid token")
+		fmt.Printf("\ninvalid token: %s", err)
 		return
 	}
 
@@ -92,19 +92,19 @@ func (fs *FakeServer) handleClient(conn net.Conn) {
 	}
 	perm, _ := checkConnectPermFunc()
 	if !perm.HasPermission {
-		fmt.Printf("no perm")
+		fmt.Printf("\nno perm")
 		return
 	}
-	salt := append(fakeHandshakePacket.Salt, fakeHandshakePacket.Salt2...)
+	fakeSalt := append(fakeHandshakePacket.Salt, fakeHandshakePacket.Salt2...)
 
 	tokenPass := token.Info.Secret
-	scrambledTokenPass := ScramblePassword(salt, tokenPass)
+	scrambledTokenPass := ScramblePassword(fakeSalt, tokenPass)
 
 	// соль токен-пароль пароль
-	//fmt.Printf("\nsalt : %v tokenp : %s p : %s", salt, hex.EncodeToString(scrambledTokenPass), hex.EncodeToString(password))
+	//fmt.Printf("\nsalt : %v tokenp : %s p : %v", fakeSalt, hex.EncodeToString(scrambledTokenPass), hex.EncodeToString(password))
 
 	if !bytes.Equal(scrambledTokenPass, password) {
-		fmt.Printf("wrong pass")
+		fmt.Printf("\nwrong pass\n")
 		return
 	}
 
@@ -172,9 +172,9 @@ func (fs *FakeServer) handleClient(conn net.Conn) {
 		return
 	}
 
-	saltData := handshakePacket.AuthPluginData[:len(handshakePacket.AuthPluginData)-1]
+	salt := handshakePacket.AuthPluginData[:len(handshakePacket.AuthPluginData)-1]
 
-	passwd := ScramblePassword(saltData, string(authPacket.Password))
+	passwd := ScramblePassword(salt, string(authPacket.Password))
 	authPacket.Password = passwd
 
 	res, err := authPacket.Encode()

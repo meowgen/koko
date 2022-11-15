@@ -66,6 +66,20 @@ func (f *FakeHandshakePacket) IncrementConnectID(curID []byte) {
 	}
 }
 
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+func randStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
+
+var testSeed1 = "12345678"
+var testSeed2 = "qwertyasdfgh"
+var testSalt = false
+
 func (r *FakeHandshakePacket) NewHandshakePacket(connID []byte) error {
 	r.Protocol = byte(0x0a)
 
@@ -77,7 +91,7 @@ func (r *FakeHandshakePacket) NewHandshakePacket(connID []byte) error {
 
 	salt := make([]byte, 8)
 	rand.Read(salt)
-	r.Salt = salt
+	r.Salt = []byte(randStringRunes(8))
 
 	r.ServerCapabilities = []byte{0xff, 0xf7}
 
@@ -93,7 +107,7 @@ func (r *FakeHandshakePacket) NewHandshakePacket(connID []byte) error {
 
 	salt2 := make([]byte, 12)
 	rand.Read(salt2)
-	r.Salt2 = salt2
+	r.Salt2 = []byte(randStringRunes(12))
 
 	r.AuthenticationPlugin = []byte("mysql_native_password")
 
@@ -218,8 +232,8 @@ func (r *AuthorizationPacket) Decode(conn net.Conn) error {
 
 	r.PacketPart2 = payload[position:]
 
-	fmt.Printf("\n\n--------------------------Decode--------------------------\n\n")
-	dumpByteSlice(data[:header.Length+4])
+	//fmt.Printf("\n\n--------------------------Decode--------------------------\n\n")
+	//dumpByteSlice(data[:header.Length+4])
 
 	return nil
 }
@@ -231,10 +245,7 @@ func (r AuthorizationPacket) Encode() ([]byte, error) {
 	buf = append(buf, 0x00)
 	buf = append(buf, byte(len(r.Password)))
 	buf = append(buf, r.Password...)
-	//todo: schema
 	buf = append(buf, r.CapData...)
-	//authPlugin := []byte("mysql_native_password")
-	//buf = append(buf, authPlugin...)
 	buf = append(buf, r.PacketPart2...)
 
 	h := PacketHeader{

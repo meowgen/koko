@@ -81,7 +81,8 @@ func Setup(configPath string) {
 }
 
 func getDefaultConfig() Config {
-	defaultName := getDefaultName()
+	//defaultName := getDefaultName()
+
 	rootPath := getPwdDirPath()
 	dataFolderPath := filepath.Join(rootPath, "data")
 	replayFolderPath := filepath.Join(dataFolderPath, "replays")
@@ -96,7 +97,7 @@ func getDefaultConfig() Config {
 		}
 	}
 	return Config{
-		Name:              defaultName,
+		Name:              "defaultName",
 		CoreHost:          "http://192.168.0.73",
 		BootstrapToken:    "MYKopyilpAQyKfp3FUNDYDeGhcnfeZj1k8TFRvZc7gtMsFzZL",
 		BindHost:          "0.0.0.0",

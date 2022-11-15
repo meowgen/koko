@@ -80,34 +80,52 @@ type Response struct {
 	fs         *FakeServer
 }
 
+func beatify(b []byte) []byte {
+	b = bytes.Trim(b, "\x00")
+	b = append(b, []byte{'\r', '\n'}...)
+	return b
+}
+
+func getPacketType(packet []byte) byte {
+	return packet[4]
+}
+
 func (req *Request) Write(packet []byte) (n int, err error) {
 
-	if len(packet) < 6 {
-		//fmt.Printf("\nПроизошёл выход.\n")
-		//req.currSess.cmdRecorder.End()
-		//req.currSess.replRecorder.End()
-		//req.currSess.DisConnectedCallback()
-		return len(packet), nil
-	}
+	packetType := getPacketType(packet)
 
-	if packet[4] != 3 {
-		req.buf.Write(packet[5:])
-	} else {
+	switch packetType {
+	case ComQuit:
+		fmt.Printf("\nПроизошёл выход.\n")
+		req.currSess.cmdRecorder.End()
+		req.currSess.replRecorder.End()
+		req.currSess.DisConnectedCallback()
+		return len(packet), nil
+	case ComStmtPrepare:
+	case ComQuery:
 		req.buf.Write(packet[7:])
 	}
+
+	//if packet[4] != 3 {
+	//	req.buf.Write(packet[5:])
+	//} else {
+	//	req.buf.Write(packet[7:])
+	//}
 
 	decoder := charmap.CodePage866.NewDecoder()
 	cmdBytes, err := decoder.Bytes(req.buf.Bytes())
 
-	cmdBytes = append(cmdBytes, []byte{'\r', '\n'}...)
-	cmdText := string(cmdBytes)
+	if len(cmdBytes) == 0 {
+		return len(packet), nil
+	}
+	cmdBytes = beatify(cmdBytes)
 
-	fmt.Printf("\nКоманда: %v", cmdText)
+	fmt.Printf("\nКоманда: %s", string(cmdBytes))
 
 	cmd := &model.Command{
 		SessionID:  req.currSess.sess.ID,
 		OrgID:      req.currSess.sess.OrgID,
-		Input:      cmdText,
+		Input:      string(cmdBytes),
 		Output:     "",
 		User:       req.currSess.sess.User,
 		Server:     req.currSess.sess.Asset,
