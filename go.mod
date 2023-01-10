@@ -35,7 +35,7 @@ require (
 	github.com/xlab/treeprint v1.1.0
 	go.mongodb.org/mongo-driver v1.8.3
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.3.8
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	k8s.io/api v0.23.1
 	k8s.io/client-go v0.23.1
