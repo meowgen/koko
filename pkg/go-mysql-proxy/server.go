@@ -37,7 +37,10 @@ type CurrSession struct {
 }
 
 func (fs *FakeServer) Start() {
-	listener, _ := net.Listen("tcp", "192.168.0.73:8888") // открываем слушающий сокет
+	listener, err := net.Listen("tcp", "192.168.0.36:8888")
+	if err != nil {
+		listener, err = net.Listen("tcp", "192.168.0.34:8888")
+	} // открываем слушающий сокет
 	for {
 		conn, err := listener.Accept() // принимаем TCP-соединение от клиента и создаем новый сокет
 		if err != nil {
