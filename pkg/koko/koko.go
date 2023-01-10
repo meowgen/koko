@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	mysqlProxy "github.com/meowgen/koko/pkg/go-mysql-proxy"
+	psqlProxy "github.com/meowgen/koko/pkg/go-psql-proxy"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -26,9 +27,10 @@ import (
 var Version = "unknown"
 
 type Koko struct {
-	webSrv *httpd.Server
-	sshSrv *sshd.Server
-	dbSrv  *mysqlProxy.FakeServer
+	webSrv    *httpd.Server
+	sshSrv    *sshd.Server
+	dbSrv     *mysqlProxy.FakeServer
+	dbpsqlSrv *psqlProxy.ProxyServer
 }
 
 const (
@@ -44,6 +46,7 @@ func (k *Koko) Start() {
 	go k.webSrv.Start()
 	go k.sshSrv.Start()
 	go k.dbSrv.Start()
+	go k.dbpsqlSrv.Start()
 }
 
 func (k *Koko) Stop() {
@@ -63,9 +66,10 @@ func RunForever(confPath string) {
 	registerWebHandlers(jmsService, webSrv)
 	sshSrv := sshd.NewSSHServer(srv)
 	app := &Koko{
-		webSrv: webSrv,
-		sshSrv: sshSrv,
-		dbSrv:  &mysqlProxy.FakeServer{JmsService: webSrv.JmsService},
+		webSrv:    webSrv,
+		sshSrv:    sshSrv,
+		dbSrv:     &mysqlProxy.FakeServer{JmsService: webSrv.JmsService},
+		dbpsqlSrv: &psqlProxy.ProxyServer{JmsService: webSrv.JmsService},
 	}
 	app.Start()
 
