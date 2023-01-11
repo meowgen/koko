@@ -1,26 +1,47 @@
 package psqlProxy
 
 import (
+	"context"
 	"fmt"
 	pg3 "github.com/jackc/pgx/v5/pgproto3"
+	"github.com/meowgen/koko/pkg/common"
+	modelCommon "github.com/meowgen/koko/pkg/jms-sdk-go/common"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
 	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
+	"github.com/meowgen/koko/pkg/logger"
+	"github.com/meowgen/koko/pkg/proxy"
 	"log"
 	"net"
 	"reflect"
+	"time"
 )
 
 type ProxyServer struct {
+	JmsService *service.JMService
+}
+
+type ProxyConnection struct {
 	backendConnection  *BackendConnection  // as fake-server
 	frontendConnection *FrontendConnection // as fake-client
-	JmsService         *service.JMService
 	CurrSession        *CurrSession
-	Token              *service.TokenAuthInfoResponse
+}
+
+type CurrSession struct {
+	sess                     *model.Session
+	replRecorder             *proxy.ReplyRecorder
+	cmdRecorder              *proxy.CommandRecorder
+	CreateSessionCallback    func() error
+	ConnectedSuccessCallback func() error
+	ConnectedFailedCallback  func(err error) error
+	DisConnectedCallback     func() error
+	SwSess                   *proxy.SwitchSession
 }
 
 func (prs *ProxyServer) Start() {
 	ln, err := net.Listen("tcp", "192.168.0.34:5432")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return
 	}
 
 	for {
@@ -30,85 +51,184 @@ func (prs *ProxyServer) Start() {
 			continue
 		}
 
-		backconn := BackendConnection{}
-		backconn.NewBackendConnection(clientConn)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-
-		prx := ProxyServer{
-			backendConnection: &backconn,
-		}
-		go prx.AcceptConnection()
+		go prs.NewHandleConnection(clientConn)
 	}
 }
 
-func (prs *ProxyServer) AcceptConnection() {
-	err := prs.backendConnection.AuthConnect()
+func (prs *ProxyServer) NewHandleConnection(clientConn net.Conn) {
+	backconn, err := NewBackendConnection(clientConn, *prs.JmsService)
 	if err != nil {
-		prs.backendConnection.SendErrorResponse()
+		fmt.Println(err)
+		return
+	}
+	err = backconn.AuthConnect()
+	if err != nil {
+		backconn.SendErrorResponse()
 		fmt.Println(err)
 		return
 	}
 
-	prs.frontendConnection, err = NewFrontendConnection(prs.backendConnection.realuser.username, prs.backendConnection.realuser.password, "") // TODO: backside server is down
-	if err != nil {
-		fmt.Println(err)
-		return
+	proxyConn := ProxyConnection{backendConnection: backconn}
+
+	defer func() {
+		if proxyConn.CurrSession != nil {
+			if proxyConn.CurrSession != nil && proxyConn.CurrSession.replRecorder != nil {
+				proxyConn.CurrSession.cmdRecorder.End()
+				proxyConn.CurrSession.replRecorder.End()
+			}
+			err := proxyConn.CurrSession.DisConnectedCallback()
+			if err != nil {
+				fmt.Printf("error on disconnecting session")
+			}
+		}
+		clientConn.Close()
+	}()
+
+	apiSession := &model.Session{
+		ID:           common.UUID(),
+		User:         proxyConn.backendConnection.Token.Info.User.String(),
+		SystemUser:   proxyConn.backendConnection.Token.Info.SystemUserAuthInfo.String(),
+		LoginFrom:    "DT",
+		RemoteAddr:   proxyConn.backendConnection.conn.RemoteAddr().String(),
+		Protocol:     proxyConn.backendConnection.Token.Info.SystemUserAuthInfo.Protocol,
+		UserID:       proxyConn.backendConnection.Token.Info.User.ID,
+		SystemUserID: proxyConn.backendConnection.Token.Info.SystemUserAuthInfo.ID,
+		Asset:        proxyConn.backendConnection.Token.Info.Application.String(),
+		AssetID:      proxyConn.backendConnection.Token.Info.Application.ID,
+		OrgID:        proxyConn.backendConnection.Token.Info.Application.OrgID,
 	}
-	newStartupMessage := prs.backendConnection.startupMessage.(*pg3.StartupMessage)
-	newStartupMessage.Parameters["user"] = prs.backendConnection.realuser.username
-	newStartupMessage.Parameters["database"] = prs.backendConnection.realuser.database
-	err = prs.frontendConnection.AuthConnect(*newStartupMessage)
+	var ctx, cancel = context.WithCancel(context.Background())
+	proxyConn.CurrSession = &CurrSession{
+		sess: apiSession,
+		CreateSessionCallback: func() error {
+			apiSession.DateStart = modelCommon.NewNowUTCTime()
+			return prs.JmsService.CreateSession(*apiSession)
+		},
+		ConnectedSuccessCallback: func() error {
+			return prs.JmsService.SessionSuccess(apiSession.ID)
+		},
+		ConnectedFailedCallback: func(err error) error {
+			return prs.JmsService.SessionFailed(apiSession.ID, err)
+		},
+		DisConnectedCallback: func() error {
+			return prs.JmsService.SessionDisconnect(apiSession.ID)
+		},
+		SwSess: &proxy.SwitchSession{
+			ID:            apiSession.ID,
+			MaxIdleTime:   120,
+			KeepAliveTime: 10000,
+			Ctx:           ctx,
+			Cancel:        cancel,
+		},
+	}
+	proxy.AddCommonSwitch(proxyConn.CurrSession.SwSess)
+
+	proxyConn.frontendConnection, err = NewFrontendConnection(*proxyConn.backendConnection.Token, "")
 	if err != nil {
-		prs.backendConnection.SendErrorResponse()
 		fmt.Println(err)
 		return
 	}
 
-	err = prs.Run()
+	newStartupMessage := proxyConn.backendConnection.startupMessage.(*pg3.StartupMessage)
+	newStartupMessage.Parameters["user"] = proxyConn.backendConnection.Token.Info.SystemUserAuthInfo.Username
+	newStartupMessage.Parameters["database"] = proxyConn.backendConnection.Token.Info.Application.Attrs.Database
+	err = proxyConn.frontendConnection.AuthConnect(*newStartupMessage)
+	if err != nil {
+		proxyConn.backendConnection.SendErrorResponse()
+		fmt.Println(err)
+		return
+	}
+
+	if err := proxyConn.CurrSession.CreateSessionCallback(); err != nil {
+		log.Printf("%s", err.Error())
+		return
+	}
+	if err := proxyConn.CurrSession.ConnectedSuccessCallback(); err != nil {
+		log.Printf("%s", err.Error())
+		return
+	}
+	proxyConn.CurrSession.replRecorder, proxyConn.CurrSession.cmdRecorder = prs.GetRecorders(proxyConn)
+
+	err = proxyConn.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (prs *ProxyServer) Run() error {
-	defer prs.Close()
+func (prs *ProxyServer) GetRecorders(proxyConn ProxyConnection) (*proxy.ReplyRecorder, *proxy.CommandRecorder) {
+	return prs.GetReplayRecorder(proxyConn), prs.GetCommandRecorder(proxyConn)
+}
+
+func (prs *ProxyServer) GetReplayRecorder(proxyConn ProxyConnection) *proxy.ReplyRecorder {
+	info := &proxy.ReplyInfo{
+		Width:     80,
+		Height:    36,
+		TimeStamp: time.Now(),
+	}
+	termConf, err := prs.JmsService.GetTerminalConfig()
+	recorder, err := proxy.NewReplayRecord(proxyConn.CurrSession.sess.ID, prs.JmsService,
+		proxy.NewReplayStorage(prs.JmsService, &termConf),
+		info)
+	if err != nil {
+		logger.Error(err)
+	}
+	return recorder
+}
+
+func (prs *ProxyServer) GetCommandRecorder(proxyConn ProxyConnection) *proxy.CommandRecorder {
+	termConf, _ := prs.JmsService.GetTerminalConfig()
+	cmdR := proxy.CommandRecorder{
+		SessionID:  proxyConn.CurrSession.sess.ID,
+		Storage:    proxy.NewCommandStorage(prs.JmsService, &termConf),
+		Queue:      make(chan *model.Command, 10),
+		Closed:     make(chan struct{}),
+		JmsService: prs.JmsService,
+	}
+	go cmdR.Record()
+	return &cmdR
+}
+
+func (proxyConn *ProxyConnection) Run() error {
+	defer proxyConn.Close()
 
 	frontendErrChan := make(chan error, 1)
 	frontendMsgChan := make(chan pg3.FrontendMessage)
 	frontendNextChan := make(chan struct{})
-	go prs.readClientConn(frontendMsgChan, frontendNextChan, frontendErrChan)
+	go proxyConn.readClientConn(frontendMsgChan, frontendNextChan, frontendErrChan)
 
 	backendErrChan := make(chan error, 1)
 	backendMsgChan := make(chan pg3.BackendMessage)
 	backendNextChan := make(chan struct{})
-	go prs.readServerConn(backendMsgChan, backendNextChan, backendErrChan)
+	go proxyConn.readServerConn(backendMsgChan, backendNextChan, backendErrChan)
 
 	for {
 		select {
 		case msg := <-frontendMsgChan:
-			prs.frontendConnection.frontend.Send(msg)
+			proxyConn.frontendConnection.frontend.Send(msg)
 
 			switch msg.(type) {
 			case *pg3.Parse:
-				fmt.Println(msg.(*pg3.Parse).Query)
+				//fmt.Println(msg.(*pg3.Parse).Query)
+				proxyConn.RecordQuery(msg.(*pg3.Parse).Query)
 			case *pg3.Query:
-				fmt.Println(msg.(*pg3.Query))
-				prs.frontendConnection.frontend.Flush()
+				//fmt.Println(msg.(*pg3.Query))
+				proxyConn.RecordQuery(msg.(*pg3.Query).String)
+				proxyConn.frontendConnection.frontend.Flush()
 			case *pg3.Sync:
-				prs.frontendConnection.frontend.Flush()
+				proxyConn.frontendConnection.frontend.Flush()
 			case *pg3.Terminate:
-				prs.frontendConnection.frontend.Flush()
+				proxyConn.frontendConnection.frontend.Flush()
+				proxyConn.CurrSession.cmdRecorder.End()
+				proxyConn.CurrSession.replRecorder.End()
+				proxyConn.CurrSession.DisConnectedCallback()
 				return nil
 			}
 			frontendNextChan <- struct{}{}
 
 		case msg := <-backendMsgChan:
-			prs.backendConnection.backend.Send(msg)
+			proxyConn.backendConnection.backend.Send(msg)
 			if reflect.TypeOf(msg).String() == reflect.TypeOf(&(pg3.ReadyForQuery{})).String() {
-				prs.backendConnection.backend.Flush()
+				proxyConn.backendConnection.backend.Flush()
 			}
 			backendNextChan <- struct{}{}
 
@@ -120,9 +240,26 @@ func (prs *ProxyServer) Run() error {
 	}
 }
 
-func (prs *ProxyServer) readClientConn(msgChan chan pg3.FrontendMessage, nextChan chan struct{}, errChan chan error) {
+func (proxyConn *ProxyConnection) RecordQuery(query string) {
+	cmd := &model.Command{
+		SessionID:  proxyConn.CurrSession.sess.ID,
+		OrgID:      proxyConn.CurrSession.sess.OrgID,
+		Input:      query,
+		Output:     "",
+		User:       proxyConn.CurrSession.sess.User,
+		Server:     proxyConn.CurrSession.sess.Asset,
+		SystemUser: proxyConn.CurrSession.sess.SystemUser,
+		Timestamp:  time.Now().Unix(),
+		RiskLevel:  0,
+	}
+	//finalCmdBytes := append(mySqlPrompt, cmdBytes...)
+	proxyConn.CurrSession.cmdRecorder.RecordCommand(cmd)
+	proxyConn.CurrSession.replRecorder.Record([]byte(query + "\r\n"))
+}
+
+func (proxyConn *ProxyConnection) readClientConn(msgChan chan pg3.FrontendMessage, nextChan chan struct{}, errChan chan error) {
 	for {
-		msg, err := prs.backendConnection.backend.Receive()
+		msg, err := proxyConn.backendConnection.backend.Receive()
 		if err != nil {
 			errChan <- err
 			return
@@ -133,9 +270,9 @@ func (prs *ProxyServer) readClientConn(msgChan chan pg3.FrontendMessage, nextCha
 	}
 }
 
-func (prs *ProxyServer) readServerConn(msgChan chan pg3.BackendMessage, nextChan chan struct{}, errChan chan error) {
+func (proxyConn *ProxyConnection) readServerConn(msgChan chan pg3.BackendMessage, nextChan chan struct{}, errChan chan error) {
 	for {
-		msg, err := prs.frontendConnection.frontend.Receive()
+		msg, err := proxyConn.frontendConnection.frontend.Receive()
 		if err != nil {
 			errChan <- err
 			return
@@ -146,9 +283,9 @@ func (prs *ProxyServer) readServerConn(msgChan chan pg3.BackendMessage, nextChan
 	}
 }
 
-func (prs *ProxyServer) Close() error {
-	frontendCloseErr := prs.frontendConnection.conn.Close()
-	backendCloseErr := prs.backendConnection.conn.Close()
+func (proxyConn *ProxyConnection) Close() error {
+	frontendCloseErr := proxyConn.frontendConnection.conn.Close()
+	backendCloseErr := proxyConn.backendConnection.conn.Close()
 
 	if frontendCloseErr != nil {
 		return frontendCloseErr

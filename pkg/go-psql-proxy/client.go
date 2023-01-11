@@ -3,6 +3,7 @@ package psqlProxy
 import (
 	"fmt"
 	pg3 "github.com/jackc/pgx/v5/pgproto3"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
 	"github.com/xdg/scram"
 	"net"
 )
@@ -13,8 +14,9 @@ type FrontendConnection struct {
 	clientConv *scram.ClientConversation
 }
 
-func NewFrontendConnection(username, password, authzID string) (*FrontendConnection, error) {
-	dl, err := startdial("tcp", "127.0.0.1:5432")
+func NewFrontendConnection(token service.TokenAuthInfoResponse, authzID string) (*FrontendConnection, error) {
+	address := fmt.Sprintf("%s:%d", token.Info.Application.Attrs.Host, token.Info.Application.Attrs.Port)
+	dl, err := startdial("tcp", address)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +25,7 @@ func NewFrontendConnection(username, password, authzID string) (*FrontendConnect
 		frontend: frontend,
 		conn:     dl,
 	}
-	cli, err := newclient(username, password, authzID)
+	cli, err := newclient(token.Info.SystemUserAuthInfo.Username, token.Info.SystemUserAuthInfo.Password, authzID)
 	if err != nil {
 		return nil, err
 	}

@@ -1,13 +1,12 @@
 package psqlProxy
 
 import (
-	"encoding/base64"
 	"fmt"
 	pg3 "github.com/jackc/pgx/v5/pgproto3"
-	"github.com/meowgen/koko/pkg/jms-sdk-go/model"
-	"github.com/meowgen/koko/pkg/proxy"
+	"github.com/meowgen/koko/pkg/jms-sdk-go/service"
 	"github.com/xdg/scram"
 	"github.com/xdg/stringprep"
+	"math/rand"
 	"net"
 	"reflect"
 )
@@ -23,44 +22,12 @@ type BackendConnection struct {
 	startupMessage pg3.FrontendMessage
 	server         *scram.Server
 	servConv       *scram.ServerConversation
-	realuser       *RealUser
-	CurrSession    *CurrSession
+	Token          *service.TokenAuthInfoResponse
 }
 
-type CurrSession struct {
-	sess                     *model.Session
-	replRecorder             *proxy.ReplyRecorder
-	cmdRecorder              *proxy.CommandRecorder
-	CreateSessionCallback    func() error
-	ConnectedSuccessCallback func() error
-	ConnectedFailedCallback  func(err error) error
-	DisConnectedCallback     func() error
-	SwSess                   *proxy.SwitchSession
-}
-
-type RealUser struct {
-	username string
-	password string
-	database string
-}
-
-func (fs BackendConnection) NewBackendConnection(conn net.Conn) (*BackendConnection, error) {
-	defer func() {
-		if fs.CurrSession != nil {
-			if fs.CurrSession.cmdRecorder != nil && fs.CurrSession.replRecorder != nil {
-				fs.CurrSession.cmdRecorder.End()
-				fs.CurrSession.replRecorder.End()
-			}
-			err := fs.CurrSession.DisConnectedCallback()
-			if err != nil {
-				fmt.Printf("error on disconnecting session")
-			}
-		}
-		fs.conn.Close()
-	}()
-	fs.conn = conn
+func NewBackendConnection(conn net.Conn, jmsService service.JMService) (*BackendConnection, error) {
 	backend := pg3.NewBackend(conn, conn)
-	realuser, callback, err := genServerCallback()
+	token, callback, err := genServerCallback(jmsService)
 	if err != nil {
 		return nil, err
 	}
@@ -71,54 +38,58 @@ func (fs BackendConnection) NewBackendConnection(conn net.Conn) (*BackendConnect
 		conn:     conn,
 		server:   serverSHA256,
 		servConv: serverSHA256.NewConversation(),
-		realuser: realuser,
+		Token:    token,
 	}
 
 	return connHandler, nil
 }
 
-func genServerCallback() (*RealUser, scram.CredentialLookup, error) {
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+func randStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
+}
+
+func genServerCallback(jmsService service.JMService) (*service.TokenAuthInfoResponse, scram.CredentialLookup, error) {
 	hgf := scram.SHA256
 	kf := scram.KeyFactors{Iters: 4096}
 	var client *scram.Client
-	var realuser RealUser
+	var tokenAuthInfo service.TokenAuthInfoResponse
 	cbFcn := func(token string) (scram.StoredCredentials, error) {
-		tokenLogin := "6b73919f-2890-4ee0-8807-984e09e54d32" //TODO get token from another func
+		tokenAuth, err := jmsService.GetConnectTokenAuth(token)
 
-		if token != tokenLogin {
+		if err != nil || tokenAuth.Err != nil {
 			return scram.StoredCredentials{}, fmt.Errorf("invalid token")
 		}
 
-		if token == tokenLogin {
-			// 2. if equal get data else return error
-			salt := "6PhmlKaHxlZIQToV0f9k3A==" // TODO from func
-			password := "pESC8QdfLje85VNk5"    // TODO from func
-			realuser.username = "baeldung"     // TODO from func
-			realuser.password = "baeldung"     // TODO from func
-			realuser.database = "baeldung"     // TODO from func
+		tokenAuthInfo.Info = tokenAuth.Info
+		tokenAuthInfo.Err = tokenAuth.Err
 
-			saltBytes, err := base64.StdEncoding.DecodeString(salt)
-			if err != nil {
-				return scram.StoredCredentials{}, fmt.Errorf("error decoding salt: %v", err)
-			}
-			kf.Salt = string(saltBytes)
+		saltByte := make([]byte, 8)
+		rand.Read(saltByte)
+		salt1 := []byte(randStringRunes(8))
 
-			client, err = hgf.NewClient(tokenLogin, password, "")
-			if err != nil {
-				return scram.StoredCredentials{}, fmt.Errorf("error generating client for credential callback: %v", err)
-			}
+		salt2Byte := make([]byte, 12)
+		rand.Read(salt2Byte)
+		salt2 := []byte(randStringRunes(12))
 
-			if tokenLogin, err = stringprep.SASLprep.Prepare(tokenLogin); err != nil {
-				return scram.StoredCredentials{}, fmt.Errorf("Error SASLprepping username '%s': %v", "testuser", err)
-			}
+		password := tokenAuthInfo.Info.Secret // password
+		saltFull := append(salt1, salt2...)   // salt
 
-			return client.GetStoredCredentials(kf), nil
-		} else {
-			return scram.StoredCredentials{}, fmt.Errorf("Unknown token: %s", token)
+		kf.Salt = string(saltFull)
+
+		client, err = hgf.NewClient(token, password, "")
+		if err != nil {
+			return scram.StoredCredentials{}, fmt.Errorf("error generating client for credential callback: %v", err)
 		}
-	}
 
-	return &realuser, cbFcn, nil
+		return client.GetStoredCredentials(kf), nil
+	}
+	return &tokenAuthInfo, cbFcn, nil
 }
 
 func (backConn *BackendConnection) AuthConnect() error {
@@ -237,7 +208,7 @@ func (backConn *BackendConnection) Close() error {
 }
 
 func (backConn *BackendConnection) SendErrorResponse() {
-	msg := fmt.Sprintf("password authentication failed for user")
+	msg := fmt.Sprintf("password authentication failed for \"%s\"", backConn.startupMessage.(*pg3.StartupMessage).Parameters["username"])
 	errorresponse := pg3.ErrorResponse{Severity: "FATAL", SeverityUnlocalized: "FATAL", Code: "28P01", Message: msg}
 	backConn.backend.Send(&errorresponse)
 	backConn.backend.Flush()
