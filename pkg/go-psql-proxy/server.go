@@ -20,7 +20,6 @@ type BackendConnection struct {
 	backend        *pg3.Backend
 	conn           net.Conn
 	startupMessage pg3.FrontendMessage
-	server         *scram.Server
 	servConv       *scram.ServerConversation
 	Token          *service.TokenAuthInfoResponse
 }
@@ -36,7 +35,6 @@ func NewBackendConnection(conn net.Conn, jmsService service.JMService) (*Backend
 	connHandler := &BackendConnection{
 		backend:  backend,
 		conn:     conn,
-		server:   serverSHA256,
 		servConv: serverSHA256.NewConversation(),
 		Token:    token,
 	}
