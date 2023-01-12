@@ -51,38 +51,38 @@ func newclient(username, password, authzID string) (scram.Client, error) {
 	return *cl, nil
 }
 
-func (frontConn *FrontendConnection) AuthConnect(message pg3.StartupMessage) error {
+func (frontConn *FrontendConnection) Connected(message pg3.StartupMessage) bool {
 	err := frontConn.SendSSLRequest()
 	if err != nil {
-		return err
+		return false
 	}
 
 	err = frontConn.SendStartupMessage(message)
 	if err != nil {
-		return err
+		return false
 	}
 
 	servfirstmsg, err := frontConn.ReceiveServerFirstMessage()
 	if err != nil {
-		return err
+		return false
 	}
 
 	servfinalmsg, err := frontConn.ReceiveServerFinalMessage(servfirstmsg)
 	if err != nil {
-		return err
+		return false
 	}
 
 	_, err = frontConn.clientConv.Step(servfinalmsg)
 	if err != nil {
-		return err
+		return false
 	}
 
 	err = frontConn.ReceiveAuthOk()
 	if err != nil {
-		return err
+		return false
 	}
 
-	return nil
+	return true
 }
 
 func (frontConn *FrontendConnection) SendSSLRequest() error {
@@ -114,11 +114,6 @@ func (frontConn *FrontendConnection) ReceiveServerFirstMessage() (string, error)
 
 	switch authSASLmsg.(type) {
 	case *pg3.AuthenticationSASL:
-		/*mechanisms := authSASLmsg.(*pg3.AuthenticationSASL).AuthMechanisms
-		if !slices.Contains(mechanisms, "SCRAM-SHA-256") {
-			return "", fmt.Errorf("server no have SCRAM-SHA-256")
-		}*/
-
 		authSASLInit := &pg3.SASLInitialResponse{AuthMechanism: "SCRAM-SHA-256", Data: []byte(clifirstmsg)}
 		frontConn.frontend.Send(authSASLInit)
 		err = frontConn.frontend.Flush()
