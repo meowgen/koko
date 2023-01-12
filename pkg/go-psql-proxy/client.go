@@ -16,7 +16,7 @@ type FrontendConnection struct {
 
 func NewFrontendConnection(token service.TokenAuthInfoResponse, authzID string) (*FrontendConnection, error) {
 	address := fmt.Sprintf("%s:%d", token.Info.Application.Attrs.Host, token.Info.Application.Attrs.Port)
-	dl, err := startdial("tcp", address)
+	dl, err := net.Dial("tcp", address)
 	if err != nil {
 		return nil, err
 	}
@@ -25,30 +25,13 @@ func NewFrontendConnection(token service.TokenAuthInfoResponse, authzID string) 
 		frontend: frontend,
 		conn:     dl,
 	}
-	cli, err := newclient(token.Info.SystemUserAuthInfo.Username, token.Info.SystemUserAuthInfo.Password, authzID)
+	cli, err := scram.SHA256.NewClient(token.Info.SystemUserAuthInfo.Username, token.Info.SystemUserAuthInfo.Password, authzID)
 	if err != nil {
 		return nil, err
 	}
 	connHandler.clientConv = cli.NewConversation()
 
 	return connHandler, nil
-}
-
-func startdial(network, address string) (net.Conn, error) {
-	dl, err := net.Dial(network, address)
-	if err != nil {
-		return nil, err
-	}
-	return dl, nil
-}
-
-func newclient(username, password, authzID string) (scram.Client, error) {
-	cl, err := scram.SHA256.NewClient(username, password, authzID)
-	if err != nil {
-		return scram.Client{}, err
-	}
-
-	return *cl, nil
 }
 
 func (frontConn *FrontendConnection) Connected(message pg3.StartupMessage) bool {
