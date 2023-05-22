@@ -127,22 +127,24 @@ func MustLoadValidAccessKey() model.AccessKey {
 
 func MustRegisterTerminalAccount() (key model.AccessKey) {
 	conf := config.GlobalConfig
-	//рандом
-	rand.Seed(time.Now().UnixNano())
-	randomNumber := strconv.Itoa(rand.Intn(100000))
-	terminal, err := service.RegisterTerminalAccount(conf.CoreHost,
-		randomNumber, conf.BootstrapToken)
-	if err != nil {
-		logger.Error(err.Error())
-		os.Exit(1)
-		return
+	for i := 0; i < 10; i++ {
+		terminal, err := service.RegisterTerminalAccount(conf.CoreHost,
+			conf.Name, conf.BootstrapToken)
+		if err != nil {
+			logger.Error(err.Error())
+			time.Sleep(5 * time.Second)
+			continue
+		}
+		key.ID = terminal.ServiceAccount.AccessKey.ID
+		key.Secret = terminal.ServiceAccount.AccessKey.Secret
+		if err := key.SaveToFile(conf.AccessKeyFilePath); err != nil {
+			logger.Error("保存key失败: " + err.Error())
+		}
+		return key
 	}
-	key.ID = terminal.ServiceAccount.AccessKey.ID
-	key.Secret = terminal.ServiceAccount.AccessKey.Secret
-	if err := key.SaveToFile(conf.AccessKeyFilePath); err != nil {
-		logger.Error("保存key失败: " + err.Error())
-	}
-	return key
+	logger.Error("注册终端失败退出")
+	os.Exit(1)
+	return
 }
 
 func MustValidKey(key model.AccessKey) model.AccessKey {
