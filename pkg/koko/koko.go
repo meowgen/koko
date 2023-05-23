@@ -4,10 +4,8 @@ import (
 	"errors"
 	"fmt"
 	mysqlProxy "github.com/meowgen/koko/pkg/go-mysql-proxy"
-	"math/rand"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
