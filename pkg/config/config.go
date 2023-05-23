@@ -81,8 +81,7 @@ func Setup(configPath string) {
 }
 
 func getDefaultConfig() Config {
-	//defaultName := getDefaultName()
-
+	defaultName := getDefaultName()
 	rootPath := getPwdDirPath()
 	dataFolderPath := filepath.Join(rootPath, "data")
 	replayFolderPath := filepath.Join(dataFolderPath, "replays")
@@ -97,15 +96,15 @@ func getDefaultConfig() Config {
 		}
 	}
 	return Config{
-		Name:              "defaultName",
-		CoreHost:          "http://192.168.0.36",
-		BootstrapToken:    "MYKopyilpAQyKfp3FUNDYDeGhcnfeZj1k8TFRvZc7gtMsFzZL",
+		Name:              defaultName,
+		CoreHost:          "http://localhost:8080",
+		BootstrapToken:    "",
 		BindHost:          "0.0.0.0",
 		SSHPort:           "2222",
 		SSHTimeout:        15,
 		HTTPPort:          "5000",
 		AccessKeyFilePath: accessKeyFilePath,
-		LogLevel:          "DEBUG",
+		LogLevel:          "INFO",
 		RootPath:          rootPath,
 		DataFolderPath:    dataFolderPath,
 		LogDirPath:        LogDirPath,
@@ -113,7 +112,7 @@ func getDefaultConfig() Config {
 		ReplayFolderPath:  replayFolderPath,
 
 		Comment:             "KOKO",
-		UploadFailedReplay:  false,
+		UploadFailedReplay:  true,
 		ShowHiddenFile:      false,
 		ReuseConnection:     true,
 		AssetLoadPolicy:     "",
@@ -122,7 +121,7 @@ func getDefaultConfig() Config {
 		ClientAliveInterval: 30,
 		RetryAliveCountMax:  3,
 		ShareRoomType:       "local",
-		RedisHost:           "http://192.168.0.15",
+		RedisHost:           "127.0.0.1",
 		RedisPort:           "6379",
 		RedisPassword:       "",
 
