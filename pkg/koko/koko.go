@@ -5,10 +5,8 @@ import (
 	"fmt"
 	mysqlProxy "github.com/meowgen/koko/pkg/go-mysql-proxy"
 	psqlProxy "github.com/meowgen/koko/pkg/go-psql-proxy"
-	"math/rand"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 

@@ -144,7 +144,7 @@ func (backConn *BackendConnection) SendAuthSASLContinue() error {
 		return fmt.Errorf("Error SASLprepping username '%s': %v", username, err)
 	}
 
-	servfirstmsg, err := backConn.servConv.Step(string(message.(*pg3.SASLInitialResponse).Data), username)
+	servfirstmsg, err := backConn.servConv.Step(string(message.(*pg3.SASLInitialResponse).Data))
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func (backConn *BackendConnection) SendAuthSASLFinal() error {
 	if reflect.TypeOf(message).String() != reflect.TypeOf(&(pg3.SASLResponse{})).String() {
 		return fmt.Errorf("Received message is not SASLResponse: %w", err)
 	}
-	servfinalmsg, err := backConn.servConv.Step(string(message.(*pg3.SASLResponse).Data), "")
+	servfinalmsg, err := backConn.servConv.Step(string(message.(*pg3.SASLResponse).Data))
 	if err != nil {
 		return err
 	}
