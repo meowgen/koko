@@ -20,7 +20,7 @@ type ProxyConnection struct {
 }
 
 func (prs *ProxyServer) Start() {
-	ln, err := net.Listen("tcp", "192.168.0.34:5432")
+	ln, err := net.Listen("tcp", "0.0.0.0:54320")
 	if err != nil {
 		fmt.Println(err)
 		return
